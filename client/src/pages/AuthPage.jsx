@@ -41,7 +41,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b to-blue-100 from-white flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-b to-blue-100 from-white flex flex-col items-center pt-50">
       {/* College Branding Section */}
       <div className="text-center mb-8 mt-8">
         <img 

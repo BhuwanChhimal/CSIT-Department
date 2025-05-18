@@ -8,8 +8,8 @@ const MainNavbar = () => {
     navigate("/auth");
   };
   return (
-    <div className="flex flex-col md:flex-row justify-between select-none items-center bg-gray-200 max-w-6xl rounded-lg mx-4 md:mx-auto mt-4 p-4 shadow-gray-400 shadow-md">
-      <div className="flex flex-col md:flex-row items-center cursor-pointer" onClick={() => navigate("/")}>
+    <div className="flex flex-col md:flex-row justify-between select-none items-center backdrop-blur-sm bg-white/30 max-w-6xl rounded-lg mx-4 md:mx-auto mt-4 p-4 shadow-gray-400 shadow-md">
+      <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
         <div>
           <img src="/collegelogo.png" className="w-16 h-16 md:w-20 md:h-20 cursor-pointer" alt="clg-logo" />
         </div>

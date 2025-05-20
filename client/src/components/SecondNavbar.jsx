@@ -78,7 +78,7 @@ const SecondNavbar = () => {
     >
     <div className="bg-blue-900 select-none items-center max-w-7xl mx-auto mt-4 p-4 text-white rounded-md shadow-md">
       <div className="flex items-center justify-evenly">
-        <div className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <University />
           <Link to="/about-us" className="text-lg">About Us</Link>
         </div>
@@ -86,7 +86,7 @@ const SecondNavbar = () => {
         <div>
           <div
             onClick={handleDeptDropdown}
-            className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md"
+            className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md"
           >
             <LibraryBig />
             <p className="text-lg">Departments</p>
@@ -97,7 +97,7 @@ const SecondNavbar = () => {
                 <div>
                   <div
                     onClick={handleCsitDropdown}
-                    className="flex gap-2 items-center cursor-pointer hover:bg-gray-300 p-1.5 rounded-md transition-all duration-300"
+                    className="flex gap-2 items-center cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300"
                   >
                     <li>Computer Science & IT</li>
                     {showCsitDropdown ? (
@@ -109,13 +109,13 @@ const SecondNavbar = () => {
                   {showCsitDropdown && (
                     <div className="bg-gray-300 p-2 rounded-md mt-2 z-10 absolute -right-79 shadow-md">
                       <ul className="flex flex-col gap-2">
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Computer Science & IT
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bachelors in Information Technlogy
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Masters in Information Technology
                         </li>
                       </ul>
@@ -126,7 +126,7 @@ const SecondNavbar = () => {
                 <div>
                   <div
                     onClick={handleScienceDropdown}
-                    className="flex gap-2 items-center cursor-pointer hover:bg-gray-300 p-1.5 rounded-md transition-all duration-300 w-fit"
+                    className="flex gap-2 items-center cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300 w-fit"
                   >
                     <li>Pure Science</li>
                     {showScienceDropdown ? (
@@ -138,19 +138,19 @@ const SecondNavbar = () => {
                   {showScienceDropdown && (
                     <div className="bg-gray-300 p-2 rounded-md mt-2 z-10 absolute -right-43 top-15 shadow-md">
                       <ul className="flex flex-col gap-2">
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Physics
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Chemistry
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Mathematics
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Botany
                         </li>
-                        <li className="cursor-pointer hover:bg-gray-200 p-1.5 rounded-md transition-all duration-300">
+                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
                           Bsc Zoology
                         </li>
                       </ul>
@@ -161,27 +161,27 @@ const SecondNavbar = () => {
             </section>
           )}
         </div>
-        <Link to="/notices" className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <Link to="/notices" className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <SquarePen />
           <p className="text-lg">Notices</p>
         </Link>
 
-        <div className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <Download />
           <p className="text-lg">Downloads</p>
         </div>
 
-        <div className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <User />
           <p className="text-lg">Profiles</p>
         </div>
 
-        <div className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <Images />
           <p className="text-lg">Gallery</p>
         </div>
 
-        <div className="flex gap-2 cursor-pointer hover:bg-gray-400 transition-all duraation-300 p-1.5 rounded-md">
+        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <ContactRound />
           <p className="text-lg">Contacts</p>
         </div>

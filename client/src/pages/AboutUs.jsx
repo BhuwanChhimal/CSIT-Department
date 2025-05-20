@@ -32,14 +32,14 @@ export default function AboutUs() {
                 <Clock className="text-blue-600 w-8 h-8" />
               </div>
               <p className="text-sm text-gray-600">Established</p>
-              <p className="font-semibold">1992</p>
+              <p className="font-semibold">1957</p>
             </div>
             <div className="text-center">
               <div className="flex justify-center mb-2">
                 <Users className="text-blue-600 w-8 h-8" />
               </div>
               <p className="text-sm text-gray-600">Students</p>
-              <p className="font-semibold">3,500+</p>
+              <p className="font-semibold">2,000+</p>
             </div>
             <div className="text-center">
               <div className="flex justify-center mb-2">
@@ -94,13 +94,13 @@ export default function AboutUs() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Journey Through the Years</h2>
                   <p className="mb-4">
-                    Amrit Science Campus (ASCOL) was established in 1992 as a premier institution dedicated to scientific education and research. Located in the heart of Kathmandu, Nepal, ASCOL has grown from humble beginnings to become one of the country's leading science colleges.
+                    Amrit Science Campus (ASCOL) was established in 1957 as a premier institution dedicated to scientific education and research. Located in the heart of Kathmandu, Nepal, ASCOL has grown from humble beginnings to become one of the country's leading science colleges.
                   </p>
                   <div className="my-6 bg-gray-100 p-6 rounded-lg">
                     <h3 className="text-lg font-semibold mb-3">Key Milestones</h3>
                     <ul className="space-y-3">
                       <li className="flex">
-                        <span className="font-bold text-blue-600 mr-2">1992:</span>
+                        <span className="font-bold text-blue-600 mr-2">19572:</span>
                         <span>Establishment of Amrit Science Campus</span>
                       </li>
                       <li className="flex">
@@ -279,7 +279,7 @@ export default function AboutUs() {
             <div className="sticky top-6">
               {/* Campus Image */}
               <div className="mb-6 rounded-lg overflow-hidden shadow-md">
-                <img src="/api/placeholder/600/400" alt="Amrit Science Campus Building" className="w-full h-auto" />
+                <img src="/clg-img.webp" alt="Amrit Science Campus Building" className="w-full h-auto" />
               </div>
               
               {/* Location */}
@@ -290,7 +290,7 @@ export default function AboutUs() {
                 </h3>
                 <p className="text-gray-600 mb-3">Lainchaur, Kathmandu, Nepal</p>
                 <div className="bg-gray-200 h-40 rounded flex items-center justify-center">
-                  <p className="text-gray-500 text-sm">Campus Map Image</p>
+                  <img src="/clg-map.png" alt="campus location" />
                 </div>
                 <a href="#" className="inline-block mt-3 text-blue-600 text-sm hover:underline">Get Directions</a>
               </div>
@@ -299,8 +299,8 @@ export default function AboutUs() {
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
                 <div className="space-y-3 text-gray-600">
-                  <p><span className="font-medium">Phone:</span> +977-1-4123456</p>
-                  <p><span className="font-medium">Email:</span> info@amritcampus.edu.np</p>
+                  <p><span className="font-medium">Phone:</span> +977-01-4411637</p>
+                  <p><span className="font-medium">Email:</span> info@ac.tu.edu.np</p>
                   <p><span className="font-medium">Office Hours:</span> 8:00 AM - 4:00 PM (Sun-Fri)</p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-100">
@@ -321,34 +321,34 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg overflow-hidden shadow-md">
               <div className="h-56 bg-gray-200 flex items-center justify-center">
-                <img src="/api/placeholder/300/300" alt="Campus Director" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
+                <img src="https://portal.tu.edu.np/medias/Dr.HomBahadurBaniya_2024_06_17_22_20_28.png" alt="Campus Chief" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
               </div>
               <div className="p-4 text-center">
-                <h3 className="font-bold text-lg">Dr. Rajesh Sharma</h3>
-                <p className="text-blue-600 mb-2">Campus Director</p>
+                <h3 className="font-bold text-lg">Dr. Hom Bahadur Baniya</h3>
+                <p className="text-blue-600 mb-2">Campus Chief</p>
                 <p className="text-sm text-gray-600">Ph.D. in Physics with over 20 years of academic experience in leading scientific institutions.</p>
               </div>
             </div>
             
             <div className="bg-white rounded-lg overflow-hidden shadow-md">
               <div className="h-56 bg-gray-200 flex items-center justify-center">
-                <img src="/api/placeholder/300/300" alt="Academic Dean" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
+                <img src="https://portal.tu.edu.np/medias/Gopal-Neupane_2024_06_17_22_14_46.jpg" alt="Assistant Campus Chief" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
               </div>
               <div className="p-4 text-center">
-                <h3 className="font-bold text-lg">Prof. Sunita Adhikari</h3>
-                <p className="text-blue-600 mb-2">Academic Dean</p>
-                <p className="text-sm text-gray-600">Renowned researcher in Molecular Biology with extensive publications in international journals.</p>
+                <h3 className="font-bold text-lg">Prof. Gopal Neupane</h3>
+                <p className="text-blue-600 mb-2">Assistant Campus Chief</p>
+                <p className="text-sm text-gray-600">M.Sc Mathematics</p>
               </div>
             </div>
             
             <div className="bg-white rounded-lg overflow-hidden shadow-md">
               <div className="h-56 bg-gray-200 flex items-center justify-center">
-                <img src="/api/placeholder/300/300" alt="Research Director" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
+                <img src="https://portal.tu.edu.np/medias/Dhirendra-Kumar-Yadav-150x150_2024_06_19_13_24_21.jpg" alt="IT coordinator" className="w-32 h-32 object-cover rounded-full border-4 border-white" />
               </div>
               <div className="p-4 text-center">
-                <h3 className="font-bold text-lg">Dr. Anup Thapa</h3>
-                <p className="text-blue-600 mb-2">Research Director</p>
-                <p className="text-sm text-gray-600">Expert in Environmental Sciences with a focus on sustainable development and climate change mitigation.</p>
+                <h3 className="font-bold text-lg">Mr. Dhirendra Kumar Yadav</h3>
+                <p className="text-blue-600 mb-2">IT Program Co-ordinator</p>
+                <p className="text-sm text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicingne, natus quas ipsum dolores perspiciatis dolori</p>
               </div>
             </div>
           </div>

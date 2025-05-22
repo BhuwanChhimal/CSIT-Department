@@ -76,7 +76,7 @@ const SecondNavbar = () => {
       isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
     }`}
     >
-    <div className="bg-blue-900 select-none items-center max-w-7xl mx-auto mt-4 p-4 text-white rounded-md shadow-md">
+    <div className="bg-blue-950 select-none items-center max-w-7xl mx-auto mt-4 p-4 text-white rounded-md shadow-md">
       <div className="flex items-center justify-evenly">
         <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
           <University />

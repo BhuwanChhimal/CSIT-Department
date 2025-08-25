@@ -1,192 +1,72 @@
-import React, { useEffect, useState } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  ContactRound,
-  Download,
-  Images,
-  LibraryBig,
-  SquarePen,
-  University,
-  User,
-} from "lucide-react";
-import {Link} from 'react-router'
+import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router";
+import { BookOpen, Users, Bell, Library } from "lucide-react";
+
 const SecondNavbar = () => {
-  const [showDeptDropdown, setShowDeptDropdown] = useState(false);
-  const [showCsitDropdown, setShowCsitDropdown] = useState(false);
-  const [showScienceDropdown, setShowSciencetDropdown] = useState(false);
-
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [showSemesterDropdown, setShowSemesterDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY) {
-        // Scrolling down
-        setIsVisible(false);
-      } else {
-        // Scrolling up
-        setIsVisible(true);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSemesterDropdown(false);
       }
-      
-      setLastScrollY(currentScrollY);
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  const handleDeptDropdown = () => {
-    setShowDeptDropdown(!showDeptDropdown);
-    setShowCsitDropdown(false);
-    setShowSciencetDropdown(false);
-  };
-  const handleCsitDropdown = () => {
-    setShowCsitDropdown(!showCsitDropdown);
-  };
-  const handleScienceDropdown = () => {
-    setShowSciencetDropdown(!showScienceDropdown);
-  };
-
-  useEffect(() => {
-    if (showCsitDropdown) {
-      setShowSciencetDropdown(false);
-    }
-  },[showDeptDropdown]);
-  useEffect(() => {
-    // Close other dropdowns when CSIT dropdown opens
-    if (showCsitDropdown) {
-      setShowSciencetDropdown(false);
-    }
-  }, [showCsitDropdown]);
-
-  useEffect(() => {
-    // Close other dropdowns when Science dropdown opens
-    if (showScienceDropdown) {
-    
-      setShowCsitDropdown(false);
-    }
-  }, [showScienceDropdown]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <div
-    className={`hidden md:block transition-opacity duration-300 ${
-      isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
-    }`}
-    >
-    <div className="bg-blue-950 select-none items-center max-w-7xl mx-auto mt-4 p-4 text-white rounded-md shadow-md">
-      <div className="flex items-center justify-evenly">
-        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <University />
-          <Link to="/about-us" className="text-lg">About Us</Link>
-        </div>
+    <div className="fixed top-38 left-1/2 -translate-x-1/2 z-50">
+      <div className="bg-gray-900/70 backdrop-blur-md rounded-full px-6 py-2 shadow-lg border border-white/10">
+        <div className="flex items-center justify-center gap-8">
+          <div ref={dropdownRef} className="relative">
+            <button
+              onClick={() => setShowSemesterDropdown(!showSemesterDropdown)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-white/20 rounded-full transition-all duration-300"
+            >
+              <Library size={20} className="text-blue-400" />
+              <span className="text-sm font-medium">Semesters</span>
+            </button>
 
-        <div>
-          <div
-            onClick={handleDeptDropdown}
-            className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md"
-          >
-            <LibraryBig />
-            <p className="text-lg">Departments</p>
+            {showSemesterDropdown && (
+              <div className="absolute top-full mt-2 w-56 bg-gray-900/90 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 shadow-xl">
+                <div className="py-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                    <Link
+                      key={sem}
+                      to={`/semester/${sem}`}
+                      onClick={() => setShowSemesterDropdown(false)}
+                      className="flex items-center justify-between px-4 py-3 text-sm text-gray-100 hover:bg-white/20 transition-all duration-200"
+                    >
+                      <span className="flex items-center gap-2">
+                        <BookOpen size={16} className="text-blue-400" />
+                        {`${sem}${["st", "nd", "rd"][sem - 1] || "th"} Semester`}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          {showDeptDropdown && (
-            <section className="bg-gray-200 p-2 text-black z-10 absolute rounded-md shadow-md mt-2 text-lg">
-              <ul className="flex flex-col gap-2">
-                <div>
-                  <div
-                    onClick={handleCsitDropdown}
-                    className="flex gap-2 items-center cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300"
-                  >
-                    <li>Computer Science & IT</li>
-                    {showCsitDropdown ? (
-                      <ChevronDown strokeWidth={3} />
-                    ) : (
-                      <ChevronRight strokeWidth={3} />
-                    )}
-                  </div>
-                  {showCsitDropdown && (
-                    <div className="bg-gray-300 p-2 rounded-md mt-2 z-10 absolute -right-79 shadow-md">
-                      <ul className="flex flex-col gap-2">
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Computer Science & IT
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bachelors in Information Technlogy
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Masters in Information Technology
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
 
-                <div>
-                  <div
-                    onClick={handleScienceDropdown}
-                    className="flex gap-2 items-center cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300 w-fit"
-                  >
-                    <li>Pure Science</li>
-                    {showScienceDropdown ? (
-                      <ChevronDown strokeWidth={3} />
-                    ) : (
-                      <ChevronRight strokeWidth={3} />
-                    )}
-                  </div>
-                  {showScienceDropdown && (
-                    <div className="bg-gray-300 p-2 rounded-md mt-2 z-10 absolute -right-43 top-15 shadow-md">
-                      <ul className="flex flex-col gap-2">
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Physics
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Chemistry
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Mathematics
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Botany
-                        </li>
-                        <li className="cursor-pointer hover:bg-blue-500 p-1.5 rounded-md transition-all duration-300">
-                          Bsc Zoology
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </ul>
-            </section>
-          )}
-        </div>
-        <Link to="/notices" className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <SquarePen />
-          <p className="text-lg">Notices</p>
-        </Link>
+          <Link 
+            to="/notices" 
+            className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-white/20 rounded-full transition-all duration-300"
+          >
+            <Bell size={20} className="text-blue-400" />
+            <span className="text-sm font-medium">Notices</span>
+          </Link>
 
-        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <Download />
-          <p className="text-lg">Downloads</p>
-        </div>
-
-        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <User />
-          <p className="text-lg">Profiles</p>
-        </div>
-
-        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <Images />
-          <p className="text-lg">Gallery</p>
-        </div>
-
-        <div className="flex gap-2 cursor-pointer hover:bg-blue-500 transition-all duraation-300 p-1.5 rounded-md">
-          <ContactRound />
-          <p className="text-lg">Contacts</p>
+          <Link 
+            to="/about-us" 
+            className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-white/20 rounded-full transition-all duration-300"
+          >
+            <Users size={20} className="text-blue-400" />
+            <span className="text-sm font-medium">About</span>
+          </Link>
         </div>
       </div>
-    </div>
     </div>
   );
 };

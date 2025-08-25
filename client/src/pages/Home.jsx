@@ -53,10 +53,11 @@ const Home = () => {
           animate="visible"
           className="relative z-10 text-[3rem] sm:text-[5rem] md:text-[7rem] lg:text-[10rem] leading-none text-white font-extrabold text-center flex flex-col items-start mx-4 sm:ml-6 md:ml-8 lg:ml-10 justify-center h-screen"
         >
-          <motion.p
+          {/* <motion.p
             custom={0}
             variants={textVariants}
             className="leading-[0.9]"
+            
           >
             AMRIT
           </motion.p>
@@ -66,13 +67,27 @@ const Home = () => {
             className="leading-[0.9] ml-[1rem] sm:ml-[2rem] md:ml-[2.5rem] lg:ml-[3rem]"
           >
             SCIENCE
+          </motion.p> */}
+          <motion.p
+            custom={1}
+            variants={textVariants}
+            className="leading-[0.8] ml-[2rem] sm:ml-[3rem] md:ml-[4rem] lg:ml-[6rem]"
+          >
+            ASCOL
           </motion.p>
           <motion.p
             custom={1}
             variants={textVariants}
             className="leading-[0.9] ml-[2rem] sm:ml-[3rem] md:ml-[4rem] lg:ml-[6rem]"
           >
-            CAMPUS
+            CSIT
+          </motion.p>
+          <motion.p
+            custom={1}
+            variants={textVariants}
+            className="leading-[0.7] ml-[2rem] sm:ml-[3rem] md:ml-[4rem] lg:ml-[6rem]"
+          >
+            Department
           </motion.p>
         </motion.div>
 

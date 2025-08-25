@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Pin,
@@ -11,6 +11,15 @@ import {
 } from "lucide-react";
 
 export default function Notices() {
+
+    useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+    }, []);
+
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const notices = [
@@ -197,11 +206,11 @@ export default function Notices() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-50">
+    <div className="h-64 md:h-80 bg-gray-50 pt-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-4 mb-8">
+      <div className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-4 mb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mx-auto">
             <div>
               <h1 className="text-4xl font-bold mb-4">
                 Notices & Announcements

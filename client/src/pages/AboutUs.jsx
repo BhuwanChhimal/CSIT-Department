@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clock, MapPin, Trophy, GraduationCap, Users, BookOpen } from 'lucide-react';
 
 export default function AboutUs() {
+
+    useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+    }, []);
   const [activeTab, setActiveTab] = useState('history');
   
   return (
     <div className="bg-gray-50 min-h-screen pt-50">
       {/* Hero Section */}
-      <div className="relative bg-blue-900 h-64 md:h-80">
+      <div className="relative bg-gradient-to-r from-blue-900 to-blue-700 h-64 md:h-80">
         <div className="absolute inset-0 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-900/90 to-blue-800/80 absolute inset-0 z-10"></div>
           <div className="bg-[url('/api/placeholder/1920/600')] bg-cover bg-center absolute inset-0"></div>

@@ -1,26 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Clock, GraduationCap, Book, Calendar } from 'lucide-react';
+import useAuthStore from '@/store/authStore';
 
 const TeacherProfile = () => {
+  const { profile, isLoading, error, fetchProfile } = useAuthStore();
+  const currentCourses = [
+    { id: 1, name: "Data Structures", code: "CS201", semester: 4 },
+    { id: 2, name: "Operating Systems", code: "CS301", semester: 6 },
+    { id: 3, name: "Database Management", code: "CS302", semester: 6 },
+  ];
+  
+  useEffect(() => {
+    console.log('Fetching profile...'); // Debug log
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    console.log('Current profile:',profile); // Debug log
+  }, [profile]);
   const teacherData = {
-    name: "Dr. Jane Smith",
-    email: "jane.smith@ascamrit.edu.np",
+    ...profile,
     phone: "+977-9876543210",
     address: "Kathmandu, Nepal",
-    department: "Computer Science",
-    designation: "Associate Professor",
-    expertise: "Machine Learning, Data Science",
-    joiningDate: "2018",
-    officeHours: "10:00 AM - 2:00 PM",
-    publications: 12
+    faculty: "Computer Science",
   };
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-xl">Loading profile...</div>
+    </div>;
+  }
 
-  const currentCourses = [
-    { id: 1, code: "CSC201", name: "Data Structures", semester: 3 },
-    { id: 2, code: "CSC305", name: "Machine Learning", semester: 6 },
-    { id: 3, code: "CSC405", name: "Advanced Algorithms", semester: 7 }
-  ];
-
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-xl text-red-500">{error}</div>
+    </div>;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-55 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">

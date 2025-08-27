@@ -11,7 +11,7 @@ const StudentProfile = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Current profile:', profile); // Debug log
+    console.log('Current profile:',profile); // Debug log
   }, [profile]);
 
   const studentData = {
@@ -46,7 +46,7 @@ const StudentProfile = () => {
               <User size={48} className="text-blue-500" />
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{studentData.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 capitalize">{studentData.name}</h1>
               <p className="text-lg text-blue-600 font-medium mb-2">{studentData.rollNo}</p>
               <div className="flex flex-wrap gap-4">
                 <span className="inline-flex items-center gap-2 text-gray-600">

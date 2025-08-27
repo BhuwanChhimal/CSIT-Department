@@ -23,7 +23,7 @@ const useAuthStore = create((set) => ({
       set({ isLoading: true, error: null });
       // Add auth token to request
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/auth/getUserProfile', {
+      const response = await axios.get('http://localhost:5002/api/auth/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -9,6 +9,7 @@ import {
   CheckCircle,
   Bell,
 } from "lucide-react";
+import AssignmentManagementComp from "@/components/AssignmentManagementComp";
 
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -105,7 +106,7 @@ const TeacherOverview = () => (
 const AssignmentManagement = () => (
   <div className="space-y-6">
     <h2 className="text-2xl font-bold">Assignment Management</h2>
-    {/* Add assignment management tools */}
+    <AssignmentManagementComp/>
   </div>
 );
 

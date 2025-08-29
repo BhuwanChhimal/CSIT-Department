@@ -2,6 +2,7 @@ import express from "express";
 import { protect } from "../middlewares/authMiddleware.js";
 import {
   uploadAssignment,
+  getStudentAssignments,
   getTeacherAssignments,
 } from "../controllers/assignmentController.js";
 import upload from "../utils/multerConfig.js";
@@ -24,5 +25,6 @@ router.post(
 );
 
 router.get("/teacher", protect, getTeacherAssignments);
+router.get('/student', protect, getStudentAssignments);
 
 export default router;

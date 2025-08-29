@@ -8,6 +8,7 @@ import {
   PieChart,
   Clock
 } from 'lucide-react';
+import StudentAssignmentView from '@/components/StudentAssignmentView';
 
 const StudentDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -139,7 +140,7 @@ const OverviewContent = () => (
 const AssignmentsContent = () => (
   <div>
     <h2 className="text-2xl font-bold mb-6">Assignments</h2>
-    {/* Add assignments content */}
+      <StudentAssignmentView/>
   </div>
 );
 

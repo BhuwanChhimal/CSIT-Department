@@ -43,3 +43,14 @@ export const getTeacherAssignments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching assignments' });
   }
 };
+
+export const getStudentAssignments = async (req, res) => {
+  try {
+    const assignments = await Assignment.find()
+      .sort({ createdAt: -1 })
+      .populate('teacher', 'name');
+    res.json(assignments);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching assignments' });
+  }
+};

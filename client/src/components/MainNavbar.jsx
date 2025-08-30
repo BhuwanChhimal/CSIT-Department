@@ -21,7 +21,7 @@ const MainNavbar = () => {
   useEffect(() => {
     console.log("Fetching profile..."); // Debug log
     fetchProfile();
-  }, []);
+  },[]);
   
   const role = localStorage.getItem("userRole");
   const handleLogout = () => {
@@ -67,9 +67,9 @@ const MainNavbar = () => {
               <FaRegUser size={24} />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="p-2 mt-4">
-              <DropdownMenuLabel className="text-xl">
+              <DropdownMenuLabel className="text-xl capitalize">
                 {
-                  isAuthenticated
+                  isAuthenticated 
                     ? profile?.name || "User"
                     : "Guest"
                 }

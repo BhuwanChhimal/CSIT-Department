@@ -36,7 +36,24 @@ const assignmentSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  submissions:[
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      },
+      fileUrl: String,
+      fileName: String,
+      fileType: String,
+      fileSize: Number,
+      submittedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
 });
 
 export default mongoose.model('Assignment', assignmentSchema);

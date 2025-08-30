@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { File, Download, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { File, Download, Calendar } from "lucide-react";
 
 const StudentAssignmentView = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     fetchAssignments();
@@ -13,25 +14,49 @@ const StudentAssignmentView = () => {
 
   const fetchAssignments = async () => {
     try {
-      const response = await axios.get('http://localhost:5002/api/assignments/student',{
-        headers:{
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+      const response = await axios.get(
+        "http://localhost:5002/api/assignments/student",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
       setAssignments(response.data);
     } catch (error) {
-      setError('Failed to fetch assignments:',error);
+      setError("Failed to fetch assignments:", error);
     } finally {
       setLoading(false);
     }
   };
+  const handleAssignmentSubmit = async (assignmentId, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
 
+    try {
+      await axios.post(
+        `http://localhost:5002/api/assignments/${assignmentId}/submit`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      alert("Assignment submitted successfully");
+      setSubmitted(true);
+      fetchAssignments(); // Refresh the assignments list
+    } catch (error) {
+      console.error(error);
+      alert("Failed to submit assignment");
+    }
+  };
   if (loading) return <div>Loading assignments...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {assignments.map((assignment) => (
           <div
             key={assignment._id}
@@ -52,13 +77,34 @@ const StudentAssignmentView = () => {
 
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
               <Calendar size={16} />
-              <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+              <span>
+                Due: {new Date(assignment.dueDate).toLocaleDateString()}
+              </span>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">
                 By: {assignment.teacher.name}
               </span>
+
+              {/* Upload Input */}
+
+              <input
+                type="file"
+                id={`file-${assignment._id}`}
+                className="hidden"
+                onChange={(e) =>
+                  handleAssignmentSubmit(assignment._id, e.target.files[0])
+                }
+              />
+
+              <label
+                htmlFor={`file-${assignment._id}`}
+                className="bg-gray-700 text-white rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-600 transition-colors"
+              >
+                {submitted ? "Submitted" : "Submit"}
+              </label>
+
               <a
                 href={`http://localhost:5002/${assignment.fileUrl}`}
                 download

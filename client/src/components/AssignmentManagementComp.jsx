@@ -1,34 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Upload, File, AlertCircle,BookOpen,Hash,Calendar} from 'lucide-react';
+import {
+  Upload,
+  File,
+  AlertCircle,
+  BookOpen,
+  Hash,
+  Calendar,
+} from "lucide-react";
 
 const AssignmentManagementComp = () => {
   const [assignments, setAssignments] = useState([]);
+  const [submissions, setSubmissions] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    semester: '',
-    subject: '',
-    dueDate: '',
-    file: null
+    title: "",
+    description: "",
+    semester: "",
+    subject: "",
+    dueDate: "",
+    file: null,
   });
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   useEffect(() => {
     fetchAssignments();
   }, []);
 
   const fetchAssignments = async () => {
     try {
-      const response = await axios.get('http://localhost:5002/api/assignments/teacher',{
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await axios.get(
+        "http://localhost:5002/api/assignments/teacher",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
       setAssignments(response.data);
     } catch (error) {
-      setError('Failed to fetch assignments:',error);
+      setError("Failed to fetch assignments:", error);
+    }
+  };
+  const fetchSubmissions = async (assignmentId) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5002/api/assignments/${assignmentId}/submissions`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(res.data)
+      console.log(res.data.submissions); // list of all submissions
+      setSubmissions((prev) => ({
+        ...prev,
+        [assignmentId]: res.data, // store by assignment
+      }));
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -38,28 +69,30 @@ const AssignmentManagementComp = () => {
     setError(null);
 
     const data = new FormData();
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
-   
+
     try {
-      await axios.post('http://localhost:5002/api/assignments/upload', data, {
+      await axios.post("http://localhost:5002/api/assignments/upload", data, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
       setFormData({
-        title: '',
-        description: '',
-        semester: '',
-        subject: '',
-        dueDate: '',
-        file: null
+        title: "",
+        description: "",
+        semester: "",
+        subject: "",
+        dueDate: "",
+        file: null,
       });
       fetchAssignments();
+      alert("Assignment uploaded successfully");
     } catch (error) {
-      setError(error.response?.data?.message || 'Error uploading assignment');
+      alert("error uploading assignment");
+      setError(error.response?.data?.message || "Error uploading assignment");
     } finally {
       setLoading(false);
     }
@@ -69,10 +102,14 @@ const AssignmentManagementComp = () => {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className=" mx-auto">
         <div className="mb-10">
-          <h2 className="text-3xl font-light text-gray-900 mb-2">Assignment Management</h2>
-          <p className="text-gray-600">Upload and manage your academic assignments</p>
+          <h2 className="text-3xl font-light text-gray-900 mb-2">
+            Assignment Management
+          </h2>
+          <p className="text-gray-600">
+            Upload and manage your academic assignments
+          </p>
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
           <div onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -85,7 +122,9 @@ const AssignmentManagementComp = () => {
                   type="text"
                   placeholder="Enter assignment title"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white outline-none"
                   required
                 />
@@ -100,7 +139,9 @@ const AssignmentManagementComp = () => {
                   type="text"
                   placeholder="Enter subject name"
                   value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subject: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white outline-none"
                   required
                 />
@@ -115,7 +156,9 @@ const AssignmentManagementComp = () => {
                   type="number"
                   placeholder="Enter semester number"
                   value={formData.semester}
-                  onChange={(e) => setFormData({...formData, semester: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, semester: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white outline-none"
                   required
                 />
@@ -129,30 +172,40 @@ const AssignmentManagementComp = () => {
                 <input
                   type="datetime-local"
                   value={formData.dueDate}
-                  onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dueDate: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white outline-none"
                   required
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Assignment Description</label>
+              <label className="text-sm font-medium text-gray-700">
+                Assignment Description
+              </label>
               <textarea
                 placeholder="Provide a detailed description of the assignment"
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white min-h-[120px] resize-none outline-none"
                 required
               />
             </div>
-            
+
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">Assignment File</label>
+              <label className="text-sm font-medium text-gray-700">
+                Assignment File
+              </label>
               <div className="flex items-center gap-4">
                 <input
                   type="file"
-                  onChange={(e) => setFormData({...formData, file: e.target.files[0]})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, file: e.target.files[0] })
+                  }
                   className="hidden"
                   id="file-upload"
                   required
@@ -195,7 +248,7 @@ const AssignmentManagementComp = () => {
                     Uploading...
                   </div>
                 ) : (
-                  'Upload Assignment'
+                  "Upload Assignment"
                 )}
               </button>
             </div>
@@ -204,10 +257,14 @@ const AssignmentManagementComp = () => {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">Uploaded Assignments</h3>
-            <p className="text-gray-600 text-sm mt-1">View and manage your submitted assignments</p>
+            <h3 className="text-xl font-semibold text-gray-900">
+              Uploaded Assignments
+            </h3>
+            <p className="text-gray-600 text-sm mt-1">
+              View and manage your submitted assignments
+            </p>
           </div>
-          
+
           <div className="space-y-4">
             {assignments.map((assignment) => (
               <div
@@ -215,25 +272,75 @@ const AssignmentManagementComp = () => {
                 className="p-6 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all duration-200"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900">{assignment.title}</h4>
+                  <h4 className="font-semibold text-gray-900">
+                    {assignment.title}
+                  </h4>
                   <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
                     {new Date(assignment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-600 mb-4 leading-relaxed">{assignment.description}</p>
+                <p className="text-gray-600 mb-4 leading-relaxed">
+                  {assignment.description}
+                </p>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
                     <File size={16} className="text-blue-500" />
-                    <a 
-                      href={assignment.fileUrl} 
-                      target="_blank" 
+                    <a
+                      href={`http://localhost:5002/${assignment.fileUrl}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                     >
                       {assignment.fileName}
                     </a>
                   </div>
+                  <button
+                    onClick={() => fetchSubmissions(assignment._id)}
+                    className="mt-3 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                  >
+                    View Submissions
+                  </button>
                 </div>
+
+                {submissions[assignment._id] && (
+                  <div className="mt-4 border-t pt-3">
+                    <h5 className="font-medium text-gray-800 mb-2">
+                      Submissions
+                    </h5>
+                    {submissions[assignment._id].length === 0 ? (
+                      <p className="text-gray-500 text-sm">
+                        No submissions yet
+                      </p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {submissions[assignment._id].map((sub, idx) => (
+                          <li
+                            key={idx}
+                            className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                          >
+                            <div>
+                              <p className="text-gray-800 font-medium capitalize">
+                                {sub.student?.name || "Unknown Student"}
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                Submitted:{" "}
+                                {new Date(sub.submittedAt).toLocaleString()}
+                              </p>
+                            </div>
+                            <a
+                              href={`http://localhost:5002/${sub.fileUrl}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                            >
+                              Download
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

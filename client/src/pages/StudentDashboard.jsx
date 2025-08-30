@@ -55,13 +55,13 @@ const StudentDashboard = () => {
       {/* Dashboard Layout */}
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 min-h-screen pt-50 bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6">
+        <div className="w-64 py-5 rounded-lg ml-4 mt-60 h-[50%] bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6">
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-800">Student Portal</h2>
-            <p className="text-sm text-gray-500">Semester {selectedSemester}</p>
+            <h2 className="text-3xl font-bold text-gray-800">Student Portal</h2>
+            <p className="text-md text-gray-500">Semester {selectedSemester}</p>
           </div>
 
-          <nav className="space-y-2">
+          <nav className="space-y-4 text-lg">
             {[
               { id: 'overview', icon: BookOpen, label: 'Overview' },
               { id: 'assignments', icon: FileText, label: 'Assignments' },

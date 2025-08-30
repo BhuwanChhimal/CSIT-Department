@@ -16,14 +16,14 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="flex ">
+      <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 pt-50 min-h-screen bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6">
+        <div className="w-64 bg-white/80 py-5 rounded-lg ml-4 mt-60 h-[50%] backdrop-blur-xl border-r border-gray-200 p-6">
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-800">Faculty Portal</h2>
-            <p className="text-sm text-gray-500">Teacher Dashboard</p>
+            <h2 className="text-3xl font-bold text-gray-800">Faculty Portal</h2>
+            <p className="text-md text-gray-500">Teacher Dashboard</p>
           </div>
-          <nav className="space-y-2">
+          <nav className="space-y-4 text-lg">
             {[
               { id: "overview", icon: BookOpen, label: "Overview" },
               { id: "assignments", icon: FileText, label: "Assignments" },

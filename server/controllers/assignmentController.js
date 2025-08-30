@@ -54,3 +54,50 @@ export const getStudentAssignments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching assignments' });
   }
 };
+
+export const submitAssignment = async (req, res) => {
+  try {
+  
+    const { assignmentId } = req.params;
+    const studentId = req.user._id;
+    const fileUrl = req.file?.path;
+
+    console.log("Params:", assignmentId);
+    console.log("File:", req.file.path);
+    console.log("User:", req.user._id);
+
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    assignment.submissions.push({
+      student: studentId,
+      fileUrl,
+      submittedAt: new Date()
+    });
+
+    await assignment.save();
+    res.status(200).json({ message: 'Assignment submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error submitting assignment' });
+  }
+}
+
+export const getSubmissionsForTeacher = async (req, res) => {
+  try {
+    const {assignmentId} = req.params;
+
+    const assignment = await Assignment.findById(assignmentId).populate('submissions.student', 'name email').populate("teacher","name email");
+    if(!assignment){
+      return res.status(404).json({message: 'Assignment not found'});
+    }
+
+    if(assignment.teacher._id.toString() !== req.user._id.toString()){
+      return res.status(403).json({message: 'Not authorized to view submissions for this assignment'});
+    }
+    res.status(200).json(assignment.submissions);
+  } catch (error) {
+    res.status(500).json({message: 'Error fetching submissions'});
+  }
+}

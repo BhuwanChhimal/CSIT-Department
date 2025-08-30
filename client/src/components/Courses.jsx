@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronRight, GraduationCap } from 'lucide-react';
-import { Link } from 'react-router';
+import React, { useState } from "react";
+import { ChevronRight, GraduationCap } from "lucide-react";
+import { Link } from "react-router";
 
 const CourseSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -12,7 +12,8 @@ const CourseSection = () => {
       subjects: "C Programming, Digital Logic, Mathematics I, Physics, English",
       color: "border-blue-500",
       credits: "21 Credit Hours",
-      image: "/sem1.jpg",
+      image:
+        "https://images.unsplash.com/vector-1740835853238-233633b61af2?q=80&w=1025&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 2,
@@ -20,15 +21,18 @@ const CourseSection = () => {
       subjects: "OOP in C++, Discrete Mathematics, Mathematics II, Statistics",
       color: "border-green-500",
       credits: "20 Credit Hours",
-      image: "/sem2.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1734159656195-8b0f4d6a6b73?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 3,
       title: "Third Semester",
-      subjects: "Data Structures & Algorithms, Numerical Methods, Computer Architecture",
+      subjects:
+        "Data Structures & Algorithms, Numerical Methods, Computer Architecture",
       color: "border-yellow-500",
       credits: "19 Credit Hours",
-      image: "/sem3.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1734336902139-b60b7d1badf8?q=80&w=1098&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 4,
@@ -36,7 +40,8 @@ const CourseSection = () => {
       subjects: "Database Management System, Operating Systems, AI",
       color: "border-red-500",
       credits: "21 Credit Hours",
-      image: "/sem4.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1733721420022-07e5469bc5f4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 5,
@@ -44,7 +49,8 @@ const CourseSection = () => {
       subjects: "Computer Networks, Web Technology, Computer Graphics",
       color: "border-purple-500",
       credits: "18 Credit Hours",
-      image: "/sem5.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1734421474117-e5e4c5f47bfb?q=80&w=977&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 6,
@@ -52,7 +58,8 @@ const CourseSection = () => {
       subjects: "Software Engineering, Compiler Design, Web API",
       color: "border-indigo-500",
       credits: "20 Credit Hours",
-      image: "/sem6.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1734698801882-0d36545c314d?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 7,
@@ -60,7 +67,8 @@ const CourseSection = () => {
       subjects: "Advanced Java, Project Work, Cloud Computing",
       color: "border-pink-500",
       credits: "19 Credit Hours",
-      image: "/sem7.jpg",
+      image:
+        "https://plus.unsplash.com/premium_vector-1734421474096-6dad1f7c51f5?q=80&w=977&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       id: 8,
@@ -68,7 +76,8 @@ const CourseSection = () => {
       subjects: "Final Project, Internship, Elective II",
       color: "border-orange-500",
       credits: "17 Credit Hours",
-      image: "/sem8.jpg",
+      image:
+        "https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   ];
 
@@ -76,57 +85,63 @@ const CourseSection = () => {
     <div className="py-12 mt-10">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">B.Sc. CSIT Program Structure</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            B.Sc. CSIT Program Structure
+          </h2>
           <p className="text-gray-600 mb-4">Eight Semester Course Structure</p>
           <div className="h-1 w-20 bg-blue-600 mx-auto"></div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-  {semesters.map((semester) => (
-    <Link
-      to={`/semester/${semester.id}`}
-      key={semester.id}
-      className="block"
-    >
-      <div
-        className={`bg-white rounded-lg transition-all duration-500 transform shadow-gray-600 shadow-md hover:shadow-lg hover:scale-105 overflow-hidden relative h-80 cursor-pointer`}
-        onMouseEnter={() => setHoveredCard(semester.id)}
-        onMouseLeave={() => setHoveredCard(null)}
-      >
-        <div className="absolute inset-0 w-full h-full">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/30 z-10"></div>
-          <img
-            src={semester.image}
-            alt={semester.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-          />
-        </div>
+          {semesters.map((semester) => (
+            <Link
+              to={`/semester/${semester.id}`}
+              key={semester.id}
+              className="block"
+            >
+              <div
+                className={`bg-white rounded-lg transition-all duration-500 transform shadow-gray-600 shadow-md hover:shadow-lg hover:scale-105 overflow-hidden relative h-80 cursor-pointer`}
+                onMouseEnter={() => setHoveredCard(semester.id)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <div className="absolute inset-0 w-full h-full">
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/30 z-10"></div>
+                  <img
+                    src={semester.image}
+                    alt={semester.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
 
-        <div className="relative z-20 p-6 text-center h-full flex flex-col justify-between">
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              {semester.title}
-            </h3>
-            <p className="text-sm text-gray-200 mb-2">{semester.subjects}</p>
-            <p className="text-xs text-blue-200">{semester.credits}</p>
-            <div className={`mt-4 h-0.5 w-12 mx-auto bg-white`}></div>
-          </div>
+                <div className="relative z-20 p-6 text-center h-full flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {semester.title}
+                    </h3>
+                    <p className="text-sm text-gray-200 mb-2">
+                      {semester.subjects}
+                    </p>
+                    <p className="text-xs text-blue-200">{semester.credits}</p>
+                    <div className={`mt-4 h-0.5 w-12 mx-auto bg-white`}></div>
+                  </div>
 
-          <div className={`transition-all duration-300 ${
-            hoveredCard === semester.id ? "opacity-100" : "opacity-70"
-          }`}>
-            <span className="inline-flex items-center text-white text-sm font-medium">
-              View Details <ChevronRight size={16} className="ml-1" />
-            </span>
-          </div>
+                  <div
+                    className={`transition-all duration-300 ${
+                      hoveredCard === semester.id ? "opacity-100" : "opacity-70"
+                    }`}
+                  >
+                    <span className="inline-flex items-center text-white text-sm font-medium">
+                      View Details <ChevronRight size={16} className="ml-1" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
-      </div>
-    </Link>
-  ))}
-</div>
 
         <div className="mt-12 text-center">
-          <Link 
+          <Link
             to="/admission-details"
             className="inline-flex items-center px-6 py-3 rounded-md bg-blue-600 text-white font-medium shadow-md hover:shadow-lg hover:scale-105 hover:bg-blue-700 transition-all duration-300"
           >
@@ -137,6 +152,6 @@ const CourseSection = () => {
       </div>
     </div>
   );
-}
+};
 
 export default CourseSection;

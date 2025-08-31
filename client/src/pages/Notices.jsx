@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Calendar,
   Pin,
@@ -11,109 +12,25 @@ import {
 } from "lucide-react";
 
 export default function Notices() {
-
-    useEffect(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-      
-    }, []);
-
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const notices = [
-    {
-      id: 1,
-      title: "Mid-Semester Examination Schedule - Spring 2025",
-      category: "exam",
-      date: "2025-05-20",
-      isPinned: true,
-      type: "Important",
-      description:
-        "Mid-semester examinations for all undergraduate programs will commence from June 2, 2025. Please check the detailed schedule attached.",
-      attachment: "mid_sem_schedule.pdf",
-      views: 245,
-    },
-    {
-      id: 2,
-      title: "Research Symposium 2025 - Call for Papers",
-      category: "research",
-      date: "2025-05-18",
-      isPinned: true,
-      type: "Event",
-      description:
-        "Annual Research Symposium will be held on July 15-16, 2025. Faculty and students are invited to submit their research papers by June 10, 2025.",
-      attachment: "symposium_guidelines.pdf",
-      views: 189,
-    },
-    {
-      id: 3,
-      title: "Library Hours Extension During Exam Period",
-      category: "general",
-      date: "2025-05-19",
-      isPinned: false,
-      type: "Notice",
-      description:
-        "The central library will remain open from 6:00 AM to 11:00 PM during the examination period (June 1-30, 2025).",
-      views: 156,
-    },
-    {
-      id: 4,
-      title: "Fee Payment Reminder - Summer Semester 2025",
-      category: "academic",
-      date: "2025-05-17",
-      isPinned: false,
-      type: "Reminder",
-      description:
-        "Students are reminded to pay their summer semester fees by May 31, 2025. Late payment will incur additional charges.",
-      views: 312,
-    },
-    {
-      id: 5,
-      title: "Guest Lecture Series: Advances in Quantum Computing",
-      category: "event",
-      date: "2025-05-16",
-      isPinned: false,
-      type: "Event",
-      description:
-        "Distinguished Prof. Dr. Sarah Johnson from MIT will deliver a lecture on 'Quantum Computing Applications' on May 28, 2025, at 2:00 PM in the Main Auditorium.",
-      views: 98,
-    },
-    {
-      id: 6,
-      title: "Chemistry Lab Safety Training - Mandatory",
-      category: "academic",
-      date: "2025-05-15",
-      isPinned: false,
-      type: "Important",
-      description:
-        "All first-year chemistry students must attend the mandatory lab safety training session on May 25, 2025, at 10:00 AM.",
-      views: 203,
-    },
-    {
-      id: 7,
-      title: "Career Counseling Workshop",
-      category: "general",
-      date: "2025-05-14",
-      isPinned: false,
-      type: "Event",
-      description:
-        "A career counseling workshop will be conducted for final year students on May 30, 2025. Registration is open until May 27, 2025.",
-      views: 134,
-    },
-    {
-      id: 8,
-      title: "Hostel Accommodation Applications Open",
-      category: "general",
-      date: "2025-05-13",
-      isPinned: false,
-      type: "Notice",
-      description:
-        "Applications for hostel accommodation for the academic year 2025-26 are now open. Deadline for submission: June 15, 2025.",
-      views: 267,
-    },
-  ];
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    fetchNotices();
+  }, []);
+
+  const fetchNotices = async () => {
+    try {
+      const res = await axios.get("/api/notices"); // 🔥 fetch from backend
+      setNotices(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching notices:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     { id: "all", name: "All Notices", icon: BookOpen },
@@ -129,8 +46,8 @@ export default function Notices() {
       ? notices
       : notices.filter((notice) => notice.category === selectedCategory);
 
-  const pinnedNotices = filteredNotices.filter((notice) => notice.isPinned);
-  const regularNotices = filteredNotices.filter((notice) => !notice.isPinned);
+  const pinnedNotices = filteredNotices.filter((notice) => notice.pinned);
+  const regularNotices = filteredNotices.filter((notice) => !notice.pinned);
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -159,7 +76,7 @@ export default function Notices() {
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            {notice.isPinned && <Pin className="w-4 h-4 text-red-500" />}
+            {notice.pinned && <Pin className="w-4 h-4 text-red-500" />}
             <span
               className={`px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(
                 notice.type
@@ -190,11 +107,15 @@ export default function Notices() {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {notice.attachment && (
-              <button className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm">
+            {notice.attachments && notice.attachments.length > 0 && (
+              <a
+                href={notice.attachments[0].fileUrl}
+                download={notice.attachments[0].fileName}
+                className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm"
+              >
                 <Download className="w-4 h-4" />
                 Download
-              </button>
+              </a>
             )}
             <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
               Read More
@@ -204,6 +125,14 @@ export default function Notices() {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500">Loading notices...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-64 md:h-80 bg-gray-50 pt-50">
@@ -286,7 +215,7 @@ export default function Notices() {
                 </div>
                 <div className="space-y-4">
                   {pinnedNotices.map((notice) => (
-                    <NoticeCard key={notice.id} notice={notice} />
+                    <NoticeCard key={notice._id} notice={notice} />
                   ))}
                 </div>
               </div>
@@ -301,7 +230,7 @@ export default function Notices() {
               </h2>
               <div className="space-y-4">
                 {regularNotices.map((notice) => (
-                  <NoticeCard key={notice.id} notice={notice} />
+                  <NoticeCard key={notice._id} notice={notice} />
                 ))}
               </div>
 
@@ -321,8 +250,11 @@ export default function Notices() {
             {/* Load More */}
             {regularNotices.length > 0 && (
               <div className="text-center mt-8">
-                <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Load More Notices
+                <button
+                  onClick={fetchNotices}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Refresh Notices
                 </button>
               </div>
             )}

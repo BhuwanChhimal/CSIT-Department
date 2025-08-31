@@ -66,7 +66,7 @@ const StudentDashboard = () => {
               { id: 'overview', icon: BookOpen, label: 'Overview' },
               { id: 'assignments', icon: FileText, label: 'Assignments' },
               { id: 'attendance', icon: Calendar, label: 'Attendance' },
-              { id: 'academics', icon: GraduationCap, label: 'Academic Records' }
+              { id: 'academics', icon: GraduationCap, label: 'Academic' }
             ].map((item) => (
               <button
                 key={item.id}

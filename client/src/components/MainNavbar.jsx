@@ -14,15 +14,13 @@ import useAuthStore from "../store/authStore";
 
 const MainNavbar = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuthStore();
-
-  const { profile, fetchProfile } = useAuthStore();
+  const { isAuthenticated, logout,profile, fetchProfile } = useAuthStore();
 
   useEffect(() => {
     console.log("Fetching profile..."); // Debug log
     fetchProfile();
-  },[]);
-  
+  },[fetchProfile]);
+
   const role = localStorage.getItem("userRole");
   const handleLogout = () => {
     logout();
@@ -68,11 +66,7 @@ const MainNavbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="p-2 mt-4">
               <DropdownMenuLabel className="text-xl capitalize">
-                {
-                  isAuthenticated 
-                    ? profile?.name || "User"
-                    : "Guest"
-                }
+              {isAuthenticated ? (profile?.name || "User") : "Guest"}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
 

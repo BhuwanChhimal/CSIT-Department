@@ -1,47 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Book } from 'lucide-react';
+import axios from 'axios';
 
 const FifthSem = () => {
   const navigate = useNavigate();
 
-  const subjects = [
-    {
-      id: 1,
-      name: 'Computer Fundamentals',
-      code: 'CSC109',
-      description: 'Introduction to computer systems and basic concepts',
-      chapters: 8
-    },
-    {
-      id: 2,
-      name: 'C Programming',
-      code: 'CSC110',
-      description: 'Fundamentals of C programming language',
-      chapters: 10
-    },
-    {
-      id: 3,
-      name: 'Digital Logic',
-      code: 'CSC111',
-      description: 'Boolean algebra and digital circuit design',
-      chapters: 7
-    },
-    {
-      id: 4,
-      name: 'Mathematics I',
-      code: 'MTH112',
-      description: 'Calculus and linear algebra',
-      chapters: 6
-    },
-    {
-      id: 5,
-      name: 'Physics',
-      code: 'PHY113',
-      description: 'Mechanics and properties of matter',
-      chapters: 9
+  const [subjects, setSubjects] = useState([]);
+
+    useEffect(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      fetchSubjects();
+    }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const res = await axios.get("http://localhost:5002/api/subjects/semester/5");
+      console.log("Fetched notices:", res.data);
+      setSubjects(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching notices:", error);
+    } finally {
+      console.log("Fetch attempt finished.");
     }
-  ];
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-50 px-6 md:px-12 lg:px-16">

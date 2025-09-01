@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Shield,
   Users,
@@ -14,8 +14,10 @@ import {
   Trash2,
   Eye,
   Settings,
+  Download
 } from "lucide-react";
-
+import axios from "axios";
+// import { s } from "framer-motion/dist/types.d-CQt5spQA";
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -159,33 +161,109 @@ const AdminOverview = () => (
 );
 
 const NoticeManagement = () => {
-  const [notices, setNotices] = useState([
-    { id: 1, title: "Semester Break Schedule", content: "Winter break from Dec 20 - Jan 15", priority: "high", date: "2024-11-15", active: true },
-    { id: 2, title: "Library Hours Update", content: "Extended hours during exam week", priority: "medium", date: "2024-11-10", active: true },
-    { id: 3, title: "Sports Day Registration", content: "Annual sports day registration now open", priority: "low", date: "2024-11-08", active: false },
-  ]);
-
+  const [notices, setNotices] = useState([]);
   const [showAddNotice, setShowAddNotice] = useState(false);
-  const [newNotice, setNewNotice] = useState({ title: "", content: "", priority: "medium" });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [newNotice, setNewNotice] = useState({
+    title: "",
+    description: "",
+    category: "General",
+    type: "Notice",
+    pinned: false,
+    readMoreLink: "",
+  });
 
-  const handleAddNotice = () => {
-    if (newNotice.title && newNotice.content) {
-      setNotices([...notices, {
-        id: notices.length + 1,
-        ...newNotice,
-        date: new Date().toISOString().split('T')[0],
-        active: true
-      }]);
-      setNewNotice({ title: "", content: "", priority: "medium" });
+  // ✅ Fetch all notices on mount
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const res = await axios.get("http://localhost:5002/api/notices");
+        setNotices(res.data || []);
+      } catch (err) {
+        console.error("Error fetching notices:", err);
+      }
+    };
+    fetchNotices();
+  }, []);
+
+  // ✅ Handle file selection
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+  };
+
+  // ✅ Add notice with proper FormData handling
+  const handleAddNotice = async () => {
+    if (!newNotice.title || !newNotice.description) {
+      alert("Title and description are required!");
+      return;
+    }
+
+    // if (!selectedFile) {
+    //   alert("Please select a file to upload!");
+    //   return;
+    // }
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("title", newNotice.title);
+      formData.append("description", newNotice.description);
+      formData.append("category", newNotice.category);
+      formData.append("type", newNotice.type);
+      formData.append("pinned", newNotice.pinned);
+      formData.append("readMoreLink", newNotice.readMoreLink);
+      if(selectedFile){
+        formData.append("file", selectedFile); // This is the key part!
+      }
+
+      const res = await axios.post("http://localhost:5002/api/notices", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data", // Important for file uploads
+        },
+      });
+
+      setNotices([res.data.notice, ...notices]);
+      setNewNotice({
+        title: "",
+        description: "",
+        category: "General",
+        type: "Notice",
+        pinned: false,
+        readMoreLink: "",
+      });
+      setSelectedFile(null);
       setShowAddNotice(false);
+    } catch (err) {
+      console.error("Error adding notice:", err.response?.data || err.message);
+      alert("Error creating notice. Please try again.");
+    }
+  };
+
+  // ✅ Delete notice
+  const handleDeleteNotice = async (id) => {
+    if (!confirm("Are you sure you want to delete this notice?")) return;
+
+    try {
+      await axios.delete(`http://localhost:5002/api/notices/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setNotices(notices.filter((n) => n._id !== id));
+    } catch (err) {
+      console.error("Error deleting notice:", err);
+      alert("Error deleting notice. Please try again.");
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Notice Management</h2>
-        <button 
+        <button
           onClick={() => setShowAddNotice(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors"
         >
@@ -194,6 +272,7 @@ const NoticeManagement = () => {
         </button>
       </div>
 
+      {/* Add Notice Form */}
       {showAddNotice && (
         <div className="bg-gray-50 p-6 rounded-xl border-2 border-dashed border-gray-300">
           <h3 className="text-lg font-semibold mb-4">Create New Notice</h3>
@@ -202,29 +281,109 @@ const NoticeManagement = () => {
               type="text"
               placeholder="Notice Title"
               value={newNotice.title}
-              onChange={(e) => setNewNotice({...newNotice, title: e.target.value})}
+              onChange={(e) =>
+                setNewNotice({ ...newNotice, title: e.target.value })
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <textarea
-              placeholder="Notice Content"
-              value={newNotice.content}
-              onChange={(e) => setNewNotice({...newNotice, content: e.target.value})}
+              placeholder="Notice Description"
+              value={newNotice.description}
+              onChange={(e) =>
+                setNewNotice({ ...newNotice, description: e.target.value })
+              }
               className="w-full p-3 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
+            
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="pinned"
+                checked={newNotice.pinned}
+                onChange={(e) =>
+                  setNewNotice({ ...newNotice, pinned: e.target.checked })
+                }
+                className="w-4 h-4"
+              />
+              <label htmlFor="pinned" className="text-gray-700">Pin this notice</label>
+            </div>
+
+            {/* Fixed file input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload File 
+              </label>
+              <input 
+                type="file"
+                onChange={handleFileChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+              />
+              {selectedFile && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                </p>
+              )}
+            </div>
+
+            <input
+              type="url"
+              placeholder="Read More Link (optional)"
+              value={newNotice.readMoreLink}
+              onChange={(e) =>
+                setNewNotice({ ...newNotice, readMoreLink: e.target.value })
+              }
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+
             <select
-              value={newNotice.priority}
-              onChange={(e) => setNewNotice({...newNotice, priority: e.target.value})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={newNotice.category}
+              onChange={(e) =>
+                setNewNotice({ ...newNotice, category: e.target.value })
+              }
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="low">Low Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="high">High Priority</option>
+              <option value="General">General</option>
+              <option value="Examinations">Examinations</option>
+              <option value="Academic">Academic</option>
+              <option value="Research">Research</option>
+              <option value="Events">Events</option>
             </select>
+
+            <select
+              value={newNotice.type}
+              onChange={(e) =>
+                setNewNotice({ ...newNotice, type: e.target.value })
+              }
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="Notice">Notice</option>
+              <option value="Important">Important</option>
+              <option value="Event">Event</option>
+            </select>
+
             <div className="flex gap-3">
-              <button onClick={handleAddNotice} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+              <button
+                onClick={handleAddNotice}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+              >
                 Create Notice
               </button>
-              <button onClick={() => setShowAddNotice(false)} className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+              <button
+                onClick={() => {
+                  setShowAddNotice(false);
+                  setSelectedFile(null);
+                  setNewNotice({
+                    title: "",
+                    description: "",
+                    category: "General",
+                    type: "Notice",
+                    pinned: false,
+                    readMoreLink: "",
+                  });
+                }}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              >
                 Cancel
               </button>
             </div>
@@ -232,41 +391,82 @@ const NoticeManagement = () => {
         </div>
       )}
 
+      {/* Notice List */}
       <div className="space-y-4">
-        {notices.map((notice) => (
-          <div key={notice.id} className="border border-gray-200 rounded-xl p-6 bg-white/60">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-gray-800">{notice.title}</h3>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  notice.priority === 'high' ? 'bg-red-100 text-red-700' :
-                  notice.priority === 'medium' ? 'bg-orange-100 text-orange-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>
-                  {notice.priority.toUpperCase()}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  notice.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {notice.active ? 'ACTIVE' : 'INACTIVE'}
-                </span>
+        {notices.length === 0 ? (
+          <p className="text-center text-gray-500 py-8">No notices found.</p>
+        ) : (
+          notices.map((notice) => (
+            <div
+              key={notice._id}
+              className="border border-gray-200 rounded-xl p-6 bg-white/60"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {notice.title}
+                  </h3>
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    {notice.category}
+                  </span>
+                  {notice.type && notice.type !== "Notice" && (
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      notice.type === "Important" ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"
+                    }`}>
+                      {notice.type}
+                    </span>
+                  )}
+                  {notice.pinned && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      PINNED
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg">
+                    <Eye size={16} />
+                  </button>
+                  <button className="p-2 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-lg">
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNotice(notice._id)}
+                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg">
-                  <Eye size={16} />
-                </button>
-                <button className="p-2 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-lg">
-                  <Edit size={16} />
-                </button>
-                <button className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg">
-                  <Trash2 size={16} />
-                </button>
+              <p className="text-gray-600 mb-3">{notice.description}</p>
+              
+                {/* File info with download button */}
+                {notice.fileName && notice.fileUrl && (
+                <div className="mb-3 p-3 bg-gray-100 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      📎 Attachment: {notice.fileName}
+                      {notice.fileSize && ` (${(notice.fileSize / 1024).toFixed(1)} KB)`}
+                    </p>
+                  </div>
+                  <a
+                    href={`http://localhost:5002/${notice.fileUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                  >
+                    <Download size={14} />
+                    Download
+                  </a>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <span>Published: {new Date(notice.date).toLocaleDateString()}</span>
+                <span>{notice.views || 0} views</span>
               </div>
             </div>
-            <p className="text-gray-600 mb-3">{notice.content}</p>
-            <p className="text-sm text-gray-500">Published: {notice.date}</p>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

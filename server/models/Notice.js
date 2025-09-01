@@ -31,15 +31,18 @@ const noticeSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  attachments: [
-    {
-      fileName: String,
-      fileUrl: String,
-    },
-  ],
+  fileUrl: {
+    type: String,
+    required: false, // ✅ Changed from required: true to false
+  },
+  fileName: String,
+  fileType: String,
+  fileSize: Number,
   readMoreLink: {
     type: String,
   },
+}, {
+  timestamps: true // ✅ Added timestamps for better tracking
 });
 
 export default mongoose.model("Notice", noticeSchema);

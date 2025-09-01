@@ -15,21 +15,36 @@ export const createNotice = async (req, res) => {
       type,
       date,
       pinned,
-      attachments,
       readMoreLink,
     } = req.body;
 
-    const newNotice = new Notice({
+    const file = req.file;
+
+        // Validate required fields
+        if (!title || !description) {
+          return res.status(400).json({ 
+            message: "Title and description are required." 
+          });
+        }
+    
+     // Create notice object with conditional file properties
+     const noticeData = {
       title,
       description,
       category,
       type,
-      date,
-      pinned,
-      attachments,
+      date: date || new Date(),
+      pinned: pinned === 'true' || pinned === true, // Handle string conversion
       readMoreLink,
-    });
+    };
 
+    if (file) {
+      noticeData.fileUrl = file.path;
+      noticeData.fileName = file.originalname;
+      noticeData.fileType = file.mimetype;
+      noticeData.fileSize = file.size;
+    }
+    const newNotice = new Notice(noticeData);
     await newNotice.save();
     res.status(201).json({ message: "Notice created successfully", notice: newNotice });
   } catch (error) {

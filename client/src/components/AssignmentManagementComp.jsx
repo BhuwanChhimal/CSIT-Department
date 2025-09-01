@@ -7,8 +7,9 @@ import {
   BookOpen,
   Hash,
   Calendar,
+  Trash2
 } from "lucide-react";
-
+import {toast} from 'react-hot-toast';
 const AssignmentManagementComp = () => {
   const [assignments, setAssignments] = useState([]);
   const [submissions, setSubmissions] = useState({});
@@ -89,7 +90,8 @@ const AssignmentManagementComp = () => {
         file: null,
       });
       fetchAssignments();
-      alert("Assignment uploaded successfully");
+      toast.success("Assignment uploaded successfully");
+      // alert("Assignment uploaded successfully");
     } catch (error) {
       alert("error uploading assignment");
       setError(error.response?.data?.message || "Error uploading assignment");
@@ -97,7 +99,21 @@ const AssignmentManagementComp = () => {
       setLoading(false);
     }
   };
+  const handleDeleteAssignment = async (id) => {
+    if (!confirm("Are you sure you want to delete this notice?")) return;
 
+    try {
+      await axios.delete(`http://localhost:5002/api/assignments/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setAssignments(assignments.filter((n) => n._id !== id));
+    } catch (err) {
+      console.error("Error deleting assignment:", err);
+      alert("Error deleting assignment. Please try again.");
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className=" mx-auto">
@@ -296,12 +312,18 @@ const AssignmentManagementComp = () => {
                   </div>
                   <button
                     onClick={() => fetchSubmissions(assignment._id)}
-                    className="mt-3 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                    className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
                   >
                     View Submissions
                   </button>
+                  <button
+                    onClick={() => handleDeleteAssignment(assignment._id)}
+                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  >
+                    <Trash2 size={28} />
+                  </button>
                 </div>
-
+               
                 {submissions[assignment._id] && (
                   <div className="mt-4 border-t pt-3">
                     <h5 className="font-medium text-gray-800 mb-2">

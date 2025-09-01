@@ -43,7 +43,20 @@ export const getTeacherAssignments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching assignments' });
   }
 };
-
+export const deleteAssignment = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "teacher") {
+          return res.status(403).json({ message: "Access denied. Teachers only." });
+        }
+    
+        const deleted = await Assignment.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: "Assignment not found" });
+    
+        res.status(200).json({ message: "Assignment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting assignment' });
+  }
+}
 export const getStudentAssignments = async (req, res) => {
   try {
     const assignments = await Assignment.find()

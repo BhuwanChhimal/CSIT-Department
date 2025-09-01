@@ -8,9 +8,9 @@ import AboutUs from "./pages/AboutUs";
 import Notices from "./pages/Notices";
 import AdmissionDetails from "./pages/AdmissionDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
-import StudentDashboard from './pages/StudentDashboard';
-import TeacherDashboard from './pages/TeacherDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import StudentDashboard from "./pages/StudentDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import FirstSem from "./pages/semesters/FirstSem";
 import SecondSem from "./pages/semesters/SecondSem";
 import ThirdSem from "./pages/semesters/ThirdSem";
@@ -27,6 +27,7 @@ const App = () => {
     <div className="relative">
       <div className="fixed top-0 w-full z-50">
         <MainNavbar />
+
         <SecondNavbar />
       </div>
       <div className="relative">
@@ -38,14 +39,14 @@ const App = () => {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/notices" element={<Notices />} />
           <Route path="/admission-details" element={<AdmissionDetails />} />
-          <Route path="/semester/1" element={<FirstSem/>} />
-          <Route path="/semester/2" element={<SecondSem/>} />
-          <Route path="/semester/3" element={<ThirdSem/>} />
-          <Route path="/semester/4" element={<FourthSem/>} />
-          <Route path="/semester/5" element={<FifthSem/>} />
-          <Route path="/semester/6" element={<SixthSem/>} />
-          <Route path="/semester/7" element={<SeventhSem/>} />
-          <Route path="/semester/8" element={<EighthSem/>} />
+          <Route path="/semester/1" element={<FirstSem />} />
+          <Route path="/semester/2" element={<SecondSem />} />
+          <Route path="/semester/3" element={<ThirdSem />} />
+          <Route path="/semester/4" element={<FourthSem />} />
+          <Route path="/semester/5" element={<FifthSem />} />
+          <Route path="/semester/6" element={<SixthSem />} />
+          <Route path="/semester/7" element={<SeventhSem />} />
+          <Route path="/semester/8" element={<EighthSem />} />
           <Route
             path="/student/dashboard"
             element={
@@ -54,7 +55,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-             <Route
+          <Route
             path="/student/profile"
             element={
               <ProtectedRoute role="student">
@@ -70,11 +71,11 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/teacher/profile"
             element={
               <ProtectedRoute role="teacher">
-                <TeacherProfile/>
+                <TeacherProfile />
               </ProtectedRoute>
             }
           />
@@ -86,7 +87,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
             path="/admin/profile"
             element={
               <ProtectedRoute role="admin">

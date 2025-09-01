@@ -5,7 +5,8 @@ import {
   getStudentAssignments,
   getTeacherAssignments,
   submitAssignment,
-  getSubmissionsForTeacher
+  getSubmissionsForTeacher,
+  deleteAssignment
 } from "../controllers/assignmentController.js";
 import upload from "../utils/multerConfig.js";
 import multer from "multer";
@@ -44,6 +45,7 @@ router.post("/:assignmentId/submit", protect,
 );
 // routes/assignmentRoutes.js
 router.get("/:assignmentId/submissions", protect, getSubmissionsForTeacher);
+router.delete("/:id", protect, deleteAssignment);
 
 router.get("/teacher", protect, getTeacherAssignments);
 router.get('/student', protect, getStudentAssignments);

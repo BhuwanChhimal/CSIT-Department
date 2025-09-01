@@ -39,7 +39,7 @@ const MainNavbar = () => {
 
   return (
     <div className="fixed top-10 left-0 right-0 z-50 px-4 py-2">
-      <div className="flex  md:flex-row justify-between select-none items-center bg-gray-200/90 backdrop-blur-sm max-w-6xl rounded-lg mx-auto p-3 shadow-gray-400 shadow-md">
+      <div className="flex  md:flex-row justify-between select-none items-center bg-gray-200/90 backdrop-blur-sm max-w-6xl rounded-full mx-auto p-3 shadow-gray-400 shadow-md">
         <div
           className="flex items-center cursor-pointer"
           onClick={() => navigate("/")}
@@ -60,11 +60,11 @@ const MainNavbar = () => {
         </div>
 
         <div className="mt-2 md:mt-0">
-          <DropdownMenu>
+          <DropdownMenu >
             <DropdownMenuTrigger className="rounded-full bg-blue-300 p-2 hover:bg-blue-400 transition-colors">
               <FaRegUser size={24} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="p-2 mt-4">
+            <DropdownMenuContent className="p-2 mt-7 backdrop-blur-sm bg-gray-100/90 shadow-md shadow-gray-200 min-w-[160px] rounded-xl">
               <DropdownMenuLabel className="text-xl capitalize">
               {isAuthenticated ? (profile?.name || "User") : "Guest"}
               </DropdownMenuLabel>

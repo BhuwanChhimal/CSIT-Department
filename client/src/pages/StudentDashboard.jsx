@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
   BookOpen, 
   GraduationCap, 
@@ -9,26 +9,41 @@ import {
   Clock
 } from 'lucide-react';
 import StudentAssignmentView from '@/components/StudentAssignmentView';
+import useAuthStore from "@/store/authStore";
 
 const StudentDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const { profile } = useAuthStore();
   const [selectedSemester, setSelectedSemester] = useState(
-    localStorage.getItem('studentSemester') || null
+    localStorage.getItem(`studentSemester_${profile?._id}`) || null 
   );
+
   const [showSemesterModal, setShowSemesterModal] = useState(!selectedSemester);
   const [activeTab, setActiveTab] = useState('overview');
+  const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
   }, []);
 
   const saveSemesterChoice = (semester) => {
-    localStorage.setItem('studentSemester', semester);
+    localStorage.setItem(`studentSemester_${profile?._id}`, semester);
     setSelectedSemester(semester);
     setShowSemesterModal(false);
   };
+  useEffect(() => {
+    // Load semester choice on component mount
+    const storedSemester = localStorage.getItem(`studentSemester_${profile?._id}`);
+    if (storedSemester) {
+      setSelectedSemester(storedSemester);
+    }
+  }, [profile]);
 
+  // Callback function to update pending assignments count
+  const updatePendingAssignmentsCount = (count) => {
+    setPendingAssignmentsCount(count);
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Semester Selection Modal */}
@@ -102,7 +117,7 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Pending Assignments</h3>
                 <FileText size={20} className="text-orange-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">3</p>
+              <p className="text-3xl font-bold text-gray-900">{pendingAssignmentsCount}</p>
               <p className="text-sm text-gray-500 mt-1">Due this week</p>
             </div>
 
@@ -119,7 +134,7 @@ const StudentDashboard = () => {
           {/* Dynamic Content Area */}
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 min-h-[500px]">
             {activeTab === 'overview' && <OverviewContent />}
-            {activeTab === 'assignments' && <AssignmentsContent />}
+            {activeTab === 'assignments' && <AssignmentsContent updatePendingAssignmentsCount={updatePendingAssignmentsCount}/>}
             {activeTab === 'attendance' && <AttendanceContent />}
             {activeTab === 'academics' && <AcademicsContent />}
           </div>
@@ -137,10 +152,10 @@ const OverviewContent = () => (
   </div>
 );
 
-const AssignmentsContent = () => (
+const AssignmentsContent = ({updatePendingAssignmentsCount}) => (
   <div>
     <h2 className="text-2xl font-bold mb-6">Assignments</h2>
-      <StudentAssignmentView/>
+      <StudentAssignmentView updatePendingAssignmentsCount={updatePendingAssignmentsCount}/>
   </div>
 );
 

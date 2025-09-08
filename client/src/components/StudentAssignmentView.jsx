@@ -3,7 +3,7 @@ import axios from "axios";
 import { File, Download, Calendar } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 
-const StudentAssignmentView = () => {
+const StudentAssignmentView = ({ updatePendingAssignmentsCount }) => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,15 +27,21 @@ const StudentAssignmentView = () => {
         }
       );
       const initialSubmissionStates = {};
+      let pendingCount = 0;
       response.data.forEach((assignment) => {
-        initialSubmissionStates[assignment._id] =
-          assignment.submissions?.some((sub) => sub.student === profile?._id) ||
-          false;
+        const submitted = assignment.submissions?.some((sub) => sub.student === profile?._id) || false;
+        initialSubmissionStates[assignment._id] = submitted;
+        if (!submitted) {
+          pendingCount++;
+        }
       });
       setAssignments(response.data);
       setSubmissionStates(initialSubmissionStates);
+      updatePendingAssignmentsCount(pendingCount);
+
     } catch (error) {
       setError("Failed to fetch assignments:", error);
+      console.log(error);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Shield,
   Users,
@@ -14,9 +14,11 @@ import {
   Trash2,
   Eye,
   Settings,
-  Download
+  Download,
+  X,
 } from "lucide-react";
 import axios from "axios";
+import toast from "react-hot-toast";
 // import { s } from "framer-motion/dist/types.d-CQt5spQA";
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -110,24 +112,52 @@ const AdminDashboard = () => {
 const AdminOverview = () => (
   <div className="space-y-6">
     <h2 className="text-2xl font-bold text-gray-800">System Overview</h2>
-    
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Recent Activities</h3>
+        <h3 className="text-lg font-semibold text-gray-700">
+          Recent Activities
+        </h3>
         <div className="space-y-3">
           {[
-            { action: "New student registration", time: "2 minutes ago", type: "info" },
-            { action: "Teacher submitted grades", time: "15 minutes ago", type: "success" },
-            { action: "System backup completed", time: "1 hour ago", type: "info" },
-            { action: "Payment reminder sent", time: "2 hours ago", type: "warning" },
+            {
+              action: "New student registration",
+              time: "2 minutes ago",
+              type: "info",
+            },
+            {
+              action: "Teacher submitted grades",
+              time: "15 minutes ago",
+              type: "success",
+            },
+            {
+              action: "System backup completed",
+              time: "1 hour ago",
+              type: "info",
+            },
+            {
+              action: "Payment reminder sent",
+              time: "2 hours ago",
+              type: "warning",
+            },
           ].map((activity, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className={`w-2 h-2 rounded-full ${
-                activity.type === 'success' ? 'bg-green-500' :
-                activity.type === 'warning' ? 'bg-orange-500' : 'bg-blue-500'
-              }`} />
+            <div
+              key={index}
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+            >
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  activity.type === "success"
+                    ? "bg-green-500"
+                    : activity.type === "warning"
+                    ? "bg-orange-500"
+                    : "bg-blue-500"
+                }`}
+              />
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800">{activity.action}</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {activity.action}
+                </p>
                 <p className="text-xs text-gray-500">{activity.time}</p>
               </div>
             </div>
@@ -213,16 +243,20 @@ const NoticeManagement = () => {
       formData.append("type", newNotice.type);
       formData.append("pinned", newNotice.pinned);
       formData.append("readMoreLink", newNotice.readMoreLink);
-      if(selectedFile){
+      if (selectedFile) {
         formData.append("file", selectedFile); // This is the key part!
       }
 
-      const res = await axios.post("http://localhost:5002/api/notices", formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data", // Important for file uploads
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:5002/api/notices",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data", // Important for file uploads
+          },
+        }
+      );
 
       setNotices([res.data.notice, ...notices]);
       setNewNotice({
@@ -294,7 +328,7 @@ const NoticeManagement = () => {
               }
               className="w-full p-3 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            
+
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -305,15 +339,17 @@ const NoticeManagement = () => {
                 }
                 className="w-4 h-4"
               />
-              <label htmlFor="pinned" className="text-gray-700">Pin this notice</label>
+              <label htmlFor="pinned" className="text-gray-700">
+                Pin this notice
+              </label>
             </div>
 
             {/* Fixed file input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload File 
+                Upload File
               </label>
-              <input 
+              <input
                 type="file"
                 onChange={handleFileChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -321,7 +357,8 @@ const NoticeManagement = () => {
               />
               {selectedFile && (
                 <p className="text-sm text-gray-600 mt-1">
-                  Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  Selected: {selectedFile.name} (
+                  {(selectedFile.size / 1024).toFixed(1)} KB)
                 </p>
               )}
             </div>
@@ -410,9 +447,13 @@ const NoticeManagement = () => {
                     {notice.category}
                   </span>
                   {notice.type && notice.type !== "Notice" && (
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      notice.type === "Important" ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        notice.type === "Important"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-purple-100 text-purple-700"
+                      }`}
+                    >
                       {notice.type}
                     </span>
                   )}
@@ -438,14 +479,15 @@ const NoticeManagement = () => {
                 </div>
               </div>
               <p className="text-gray-600 mb-3">{notice.description}</p>
-              
-                {/* File info with download button */}
-                {notice.fileName && notice.fileUrl && (
+
+              {/* File info with download button */}
+              {notice.fileName && notice.fileUrl && (
                 <div className="mb-3 p-3 bg-gray-100 rounded-lg flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
                       📎 Attachment: {notice.fileName}
-                      {notice.fileSize && ` (${(notice.fileSize / 1024).toFixed(1)} KB)`}
+                      {notice.fileSize &&
+                        ` (${(notice.fileSize / 1024).toFixed(1)} KB)`}
                     </p>
                   </div>
                   <a
@@ -461,7 +503,9 @@ const NoticeManagement = () => {
               )}
 
               <div className="flex justify-between items-center text-sm text-gray-500">
-                <span>Published: {new Date(notice.date).toLocaleDateString()}</span>
+                <span>
+                  Published: {new Date(notice.date).toLocaleDateString()}
+                </span>
                 <span>{notice.views || 0} views</span>
               </div>
             </div>
@@ -473,209 +517,462 @@ const NoticeManagement = () => {
 };
 
 const StudentManagement = () => {
-  const [students] = useState([
-    { id: 1, name: "John Smith", email: "john.smith@college.edu", course: "Computer Science", year: "3rd", status: "Active" },
-    { id: 2, name: "Emily Johnson", email: "emily.j@college.edu", course: "Business Admin", year: "2nd", status: "Active" },
-    { id: 3, name: "Michael Brown", email: "m.brown@college.edu", course: "Engineering", year: "4th", status: "Inactive" },
-    { id: 4, name: "Sarah Davis", email: "sarah.d@college.edu", course: "Psychology", year: "1st", status: "Active" },
-  ]);
+  const [pendingStudents, setPendingStudents] = useState([]);
+  const [approvedStudents, setApprovedStudents] = useState([]);
+
+  useEffect(() => {
+    fetchPendingStudents();
+    fetchApprovedStudents();
+  }, []);
+
+  const fetchPendingStudents = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/pending-users?role=student",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setPendingStudents(response.data);
+    } catch (error) {
+      console.error("Error fetching pending students:", error);
+    }
+  };
+
+  const fetchApprovedStudents = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/students",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // Only approved students
+      setApprovedStudents(response.data.filter((s) => s.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved students:", error);
+    }
+  };
+
+  const handleApproveStudent = async (userId) => {
+    try {
+      await axios.put(
+        `http://localhost:5002/api/admin/approve-user/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      fetchPendingStudents();
+      fetchApprovedStudents();
+    } catch (error) {
+      console.error("Error approving student:", error);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Student Management</h2>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors">
-            <Plus size={16} />
-            Add Student
-          </button>
+    <div className="space-y-10">
+      {/* Pending Students */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Pending Students
+        </h2>
+        <div className="bg-white/60 rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Email
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {pendingStudents.map((student) => (
+                <tr key={student._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{student.name}</td>
+                  <td className="px-6 py-4">{student.email}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleApproveStudent(student._id)}
+                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                      Approve
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {pendingStudents.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4 text-gray-500">
+                    No pending students
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="bg-white/60 rounded-xl overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Student</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Course</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Year</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {students.map((student) => (
-              <tr key={student.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-medium text-gray-800">{student.name}</p>
-                    <p className="text-sm text-gray-500">{student.email}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-700">{student.course}</td>
-                <td className="px-6 py-4 text-gray-700">{student.year}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    student.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    {student.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-2">
-                    <button className="p-1 text-gray-500 hover:text-blue-500">
-                      <Eye size={16} />
-                    </button>
-                    <button className="p-1 text-gray-500 hover:text-green-500">
-                      <Edit size={16} />
-                    </button>
-                    <button className="p-1 text-gray-500 hover:text-red-500">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
+      {/* Approved Students */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Approved Students
+        </h2>
+        <div className="bg-white/60 rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Email
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Semester
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Status
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {approvedStudents.map((student) => (
+                <tr key={student._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{student.name}</td>
+                  <td className="px-6 py-4">{student.email}</td>
+                  <td className="px-6 py-4">
+                    {localStorage.getItem(`studentSemester_${student._id}`)}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      Approved
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {approvedStudents.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4 text-gray-500">
+                    No approved students
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 };
 
 const TeacherManagement = () => {
-  const [teachers] = useState([
-    { id: 1, name: "Dr. Robert Wilson", email: "r.wilson@college.edu", department: "Computer Science", courses: 3, status: "Active" },
-    { id: 2, name: "Prof. Lisa Anderson", email: "l.anderson@college.edu", department: "Mathematics", courses: 4, status: "Active" },
-    { id: 3, name: "Dr. James Miller", email: "j.miller@college.edu", department: "Physics", courses: 2, status: "On Leave" },
-    { id: 4, name: "Prof. Maria Garcia", email: "m.garcia@college.edu", department: "Chemistry", courses: 3, status: "Active" },
-  ]);
+  const [pendingTeachers, setPendingTeachers] = useState([]);
+  const [approvedTeachers, setApprovedTeachers] = useState([]);
+  const [editSubjectsId, setEditSubjectsId] = useState(null);
+  const [subjectsInput, setSubjectsInput] = useState("");
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [showSubjectsModal, setShowSubjectsModal] = useState(false);
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Teacher Management</h2>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search teachers..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+  const SUBJECT_LIST = [
+    "Advanced Java",
+    "DAA",
+    "DSA",
+
+    "Statistics",
+
+    "Database Management",
+    "Operating Systems",
+    "Web Development",
+  ];
+  useEffect(() => {
+    fetchPendingTeachers();
+    fetchApprovedTeachers();
+  }, []);
+
+  const fetchPendingTeachers = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/pending-users?role=teacher",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setPendingTeachers(response.data);
+    } catch (error) {
+      console.error("Error fetching pending teachers:", error);
+    }
+  };
+
+  const fetchApprovedTeachers = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/teachers",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setApprovedTeachers(response.data.filter((t) => t.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved teachers:", error);
+    }
+  };
+
+  const handleApproveTeacher = async (userId) => {
+    try {
+      await axios.put(
+        `http://localhost:5002/api/admin/approve-user/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      fetchPendingTeachers();
+      fetchApprovedTeachers();
+    } catch (error) {
+      console.error("Error approving teacher:", error);
+    }
+  };
+
+  const handleEditSubjects = (teacher) => {
+    setEditSubjectsId(teacher._id);
+    setSelectedSubjects(teacher.subjects || []);
+    setShowSubjectsModal(true);
+  };
+  const handleCloseSubjectsModal = () => {
+    setEditSubjectsId(null);
+    setSelectedSubjects([]);
+    setShowSubjectsModal(false);
+  };
+  const handleSubjectToggle = (subject) => {
+    setSelectedSubjects((prev) =>
+      prev.includes(subject)
+        ? prev.filter((s) => s !== subject)
+        : [...prev, subject]
+    );
+  };
+  // Modal component
+  const SubjectsModal = ({ teacher, onClose, onSave }) => {
+    // Prevent click propagation inside modal
+    const handleModalClick = (e) => e.stopPropagation();
+
+    return (
+      <div
+        className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-2xl p-8 w-[400px] shadow-xl relative"
+          onClick={handleModalClick}
+        >
+          <button
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            onClick={onClose}
+          >
+            <X size={24} />
+          </button>
+          <h2 className="text-xl font-bold mb-4">Assign Subjects</h2>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {SUBJECT_LIST.map((subject) => (
+              <label key={subject} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedSubjects.includes(subject)}
+                  onChange={() => handleSubjectToggle(subject)}
+                />
+                <span>{subject}</span>
+              </label>
+            ))}
           </div>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors">
-            <Plus size={16} />
-            Add Teacher
+          <button
+            className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            onClick={() => {
+              onSave(teacher._id);
+              onClose();
+            }}
+          >
+            Save Subjects
           </button>
         </div>
       </div>
+    );
+  };
+  const handleSaveSubjects = async (teacherId) => {
+    try {
+      await axios.put(
+        `http://localhost:5002/api/admin/assign-subjects/${teacherId}`,
+        { subjects: selectedSubjects },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setEditSubjectsId(null);
+      setSelectedSubjects([]);
+      fetchApprovedTeachers();
+    } catch (error) {
+      console.error("Error assigning subjects:", error);
+    }
+  };
 
-      <div className="bg-white/60 rounded-xl overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Teacher</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Department</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Courses</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {teachers.map((teacher) => (
-              <tr key={teacher.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-medium text-gray-800">{teacher.name}</p>
-                    <p className="text-sm text-gray-500">{teacher.email}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-700">{teacher.department}</td>
-                <td className="px-6 py-4 text-gray-700">{teacher.courses} courses</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    teacher.status === 'Active' ? 'bg-green-100 text-green-700' : 
-                    teacher.status === 'On Leave' ? 'bg-orange-100 text-orange-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {teacher.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-2">
-                    <button className="p-1 text-gray-500 hover:text-blue-500">
-                      <Eye size={16} />
-                    </button>
-                    <button className="p-1 text-gray-500 hover:text-green-500">
-                      <Edit size={16} />
-                    </button>
-                    <button className="p-1 text-gray-500 hover:text-red-500">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
+  return (
+    <div className="space-y-10">
+      {/* Pending Teachers */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Pending Teachers
+        </h2>
+        <div className="bg-white/60 rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Email
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Action
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {pendingTeachers.map((teacher) => (
+                <tr key={teacher._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{teacher.name}</td>
+                  <td className="px-6 py-4">{teacher.email}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleApproveTeacher(teacher._id)}
+                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                      Approve
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {pendingTeachers.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4 text-gray-500">
+                    No pending teachers
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/60 p-6 rounded-xl">
-          <h3 className="font-semibold text-gray-800 mb-3">Department Distribution</h3>
-          <div className="space-y-2">
-            {[
-              { dept: "Computer Science", count: 12 },
-              { dept: "Mathematics", count: 8 },
-              { dept: "Physics", count: 6 },
-              { dept: "Chemistry", count: 7 },
-            ].map((item, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">{item.dept}</span>
-                <span className="font-semibold text-gray-800">{item.count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white/60 p-6 rounded-xl">
-          <h3 className="font-semibold text-gray-800 mb-3">Performance Metrics</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Avg. Student Rating</span>
-              <span className="font-semibold text-green-600">4.7/5</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Course Completion</span>
-              <span className="font-semibold text-blue-600">94%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Attendance Rate</span>
-              <span className="font-semibold text-purple-600">91%</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/60 p-6 rounded-xl">
-          <h3 className="font-semibold text-gray-800 mb-3">Recent Activities</h3>
-          <div className="space-y-2">
-            {[
-              "Dr. Wilson uploaded new course material",
-              "Prof. Anderson submitted final grades",
-              "Dr. Miller requested leave approval",
-            ].map((activity, index) => (
-              <p key={index} className="text-sm text-gray-600">{activity}</p>
-            ))}
-          </div>
+      {/* Approved Teachers */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Approved Teachers
+        </h2>
+        <div className="bg-white/60 rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Email
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Subjects
+                </th>
+                {/* <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  Action
+                </th> */}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {approvedTeachers.map((teacher) => (
+                <tr key={teacher._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{teacher.name}</td>
+                  <td className="px-6 py-4">{teacher.email}</td>
+                  <td className="px-6 py-4">
+                    {editSubjectsId === teacher._id ? (
+                      <div className="flex flex-wrap gap-2">
+                        {SUBJECT_LIST.map((subject) => (
+                          <label
+                            key={subject}
+                            className="flex items-center gap-1"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedSubjects.includes(subject)}
+                              onChange={() => handleSubjectToggle(subject)}
+                            />
+                            <span>{subject}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : teacher.subjects && teacher.subjects.length > 0 ? (
+                      teacher.subjects.join(", ")
+                    ) : (
+                      <span className="text-gray-400">
+                        No subjects assigned
+                      </span>
+                    )}
+                  </td>
+                  {/* <td className="px-6 py-4">
+                    {teacher.subjects && teacher.subjects.length > 0 ? (
+                      teacher.subjects.join(", ")
+                    ) : (
+                      <span className="text-gray-400">
+                        No subjects assigned
+                      </span>
+                    )}
+                  </td> */}
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleEditSubjects(teacher)}
+                      className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    >
+                      Assign Subjects
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {showSubjectsModal && (
+                <SubjectsModal
+                  teacher={approvedTeachers.find(
+                    (t) => t._id === editSubjectsId
+                  )}
+                  onClose={handleCloseSubjectsModal}
+                  onSave={handleSaveSubjects}
+                />
+              )}
+              {approvedTeachers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                    No approved teachers
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

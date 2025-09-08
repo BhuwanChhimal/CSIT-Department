@@ -39,7 +39,7 @@ const MainNavbar = () => {
 
   return (
     <div className="fixed top-10 left-0 right-0 z-50 px-4 py-2">
-      <div className="flex  md:flex-row justify-between select-none items-center bg-gray-200/90 backdrop-blur-sm max-w-6xl rounded-full mx-auto p-3 shadow-gray-400 shadow-md">
+      <div className="flex  md:flex-row justify-between select-none items-center bg-gray-200/90 backdrop-blur-sm max-w-6xl rounded-full mx-auto p-3 px-5 shadow-gray-400 shadow-md">
         <div
           className="flex items-center cursor-pointer"
           onClick={() => navigate("/")}

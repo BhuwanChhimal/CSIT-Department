@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 import noticeRoutes from "./routes/noticeRoutes.js";
 import subjectRoutes from "./routes/subjects.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,6 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/notices", noticeRoutes);
 app.use("/api/subjects", subjectRoutes);
-
+app.use("/api/admin",adminRoutes)
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

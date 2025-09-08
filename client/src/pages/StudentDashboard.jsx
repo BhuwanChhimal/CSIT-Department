@@ -12,14 +12,15 @@ import StudentAssignmentView from '@/components/StudentAssignmentView';
 import useAuthStore from "@/store/authStore";
 
 const StudentDashboard = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { profile } = useAuthStore();
   const [selectedSemester, setSelectedSemester] = useState(
     localStorage.getItem(`studentSemester_${profile?._id}`) || null 
   );
+  const [showSemesterModal, setShowSemesterModal] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const [showSemesterModal, setShowSemesterModal] = useState(!selectedSemester);
   const [activeTab, setActiveTab] = useState('overview');
   const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
 
@@ -32,13 +33,20 @@ const StudentDashboard = () => {
     setSelectedSemester(semester);
     setShowSemesterModal(false);
   };
-  useEffect(() => {
-    // Load semester choice on component mount
-    const storedSemester = localStorage.getItem(`studentSemester_${profile?._id}`);
-    if (storedSemester) {
-      setSelectedSemester(storedSemester);
+ useEffect(() => {
+    if (profile?._id && !isInitialized) {
+      const storedSemester = localStorage.getItem(`studentSemester_${profile._id}`);
+      
+      if (storedSemester) {
+        setSelectedSemester(storedSemester);
+        setShowSemesterModal(false);
+      } else {
+        setShowSemesterModal(true);
+      }
+      
+      setIsInitialized(true);
     }
-  }, [profile]);
+  }, [profile?._id, isInitialized]);
 
   // Callback function to update pending assignments count
   const updatePendingAssignmentsCount = (count) => {

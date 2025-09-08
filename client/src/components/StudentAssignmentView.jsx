@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { File, Download, Calendar } from "lucide-react";
+import useAuthStore from "@/store/authStore";
 
 const StudentAssignmentView = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
+  const { profile } = useAuthStore();
+
+  const [submissionStates, setSubmissionStates] = useState({});
 
   useEffect(() => {
     fetchAssignments();
@@ -14,6 +17,7 @@ const StudentAssignmentView = () => {
 
   const fetchAssignments = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         "http://localhost:5002/api/assignments/student",
         {
@@ -22,7 +26,14 @@ const StudentAssignmentView = () => {
           },
         }
       );
+      const initialSubmissionStates = {};
+      response.data.forEach((assignment) => {
+        initialSubmissionStates[assignment._id] =
+          assignment.submissions?.some((sub) => sub.student === profile?._id) ||
+          false;
+      });
       setAssignments(response.data);
+      setSubmissionStates(initialSubmissionStates);
     } catch (error) {
       setError("Failed to fetch assignments:", error);
     } finally {
@@ -44,7 +55,10 @@ const StudentAssignmentView = () => {
         }
       );
       alert("Assignment submitted successfully");
-      setSubmitted(true);
+      setSubmissionStates((prevStates) => ({
+        ...prevStates,
+        [assignmentId]: true,
+      }));
       fetchAssignments(); // Refresh the assignments list
     } catch (error) {
       console.error(error);
@@ -100,9 +114,14 @@ const StudentAssignmentView = () => {
 
               <label
                 htmlFor={`file-${assignment._id}`}
-                className="bg-gray-700 text-white rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-600 transition-colors"
+                className={`bg-gray-700 text-white rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-600 transition-colors ${
+                  submissionStates[assignment._id]
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={submissionStates[assignment._id]}
               >
-                {submitted ? "Submitted" : "Submit"}
+                {submissionStates[assignment._id] ? "Submitted" : "Submit"}
               </label>
 
               <a

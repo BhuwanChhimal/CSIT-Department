@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import StudentAssignmentView from '@/components/StudentAssignmentView';
 import useAuthStore from "@/store/authStore";
+import MarksPredictor from '@/components/MarksPredictor';
 
 const StudentDashboard = () => {
   // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -89,7 +90,8 @@ const StudentDashboard = () => {
               { id: 'overview', icon: BookOpen, label: 'Overview' },
               { id: 'assignments', icon: FileText, label: 'Assignments' },
               { id: 'attendance', icon: Calendar, label: 'Attendance' },
-              { id: 'academics', icon: GraduationCap, label: 'Academic' }
+              { id: 'academics', icon: GraduationCap, label: 'Academic' },
+              { id: 'ai-feature', icon: ChevronRight, label: 'Marks Predictor' },
             ].map((item) => (
               <button
                 key={item.id}
@@ -145,6 +147,7 @@ const StudentDashboard = () => {
             {activeTab === 'assignments' && <AssignmentsContent updatePendingAssignmentsCount={updatePendingAssignmentsCount}/>}
             {activeTab === 'attendance' && <AttendanceContent />}
             {activeTab === 'academics' && <AcademicsContent />}
+            {activeTab === 'ai-feature' && <MarksPredictorContent/>}
           </div>
         </div>
       </div>
@@ -180,5 +183,12 @@ const AcademicsContent = () => (
     {/* Add academic records content */}
   </div>
 );
+
+const MarksPredictorContent = () => (
+  <div>
+    {/* Add marks predictor content */}
+    <MarksPredictor/>
+  </div>
+)
 
 export default StudentDashboard;

@@ -189,7 +189,9 @@ const StudentDashboard = () => {
             )}
             {activeTab === "attendance" && <AttendanceContent attendanceRecords={attendanceRecords}/>}
             {/* {activeTab === "academics" && <AcademicsContent />} */}
-            {activeTab === "ai-feature" && <MarksPredictorContent />}
+            {activeTab === "ai-feature" && (
+              <MarksPredictorContent attendancePercentage={attendancePercentage} />
+            )}
           </div>
         </div>
       </div>
@@ -356,10 +358,10 @@ const AttendanceContent = ({attendanceRecords}) => {
 //   </div>
 // );
 
-const MarksPredictorContent = () => (
+const MarksPredictorContent = ({ attendancePercentage }) => (
   <div>
     {/* Add marks predictor content */}
-    <MarksPredictor />
+    <MarksPredictor attendancePercentage={attendancePercentage} />
   </div>
 );
 

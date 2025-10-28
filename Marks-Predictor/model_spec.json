@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "dataset": {
+    "path": "student_habits_performance.csv",
+    "rowCount": 1000,
+    "target": "exam_score"
+  },
+  "model": {
+    "name": "marks-predictor-ridge-v1",
+    "type": "ridge_regression",
+    "alpha": 1.0,
+    "trainedAt": "2026-03-24T12:51:56.710142+00:00",
+    "intercept": 69.772537,
+    "targetMin": 0,
+    "targetMax": 100,
+    "predictionBandHalfWidth": 5.4086,
+    "metrics": {
+      "baseline": {
+        "name": "legacy_linear_5_feature_model",
+        "folds": 5,
+        "mae": 5.8918,
+        "rmse": 7.3145,
+        "r2": 0.809
+      },
+      "enhanced": {
+        "folds": 5,
+        "mae": 4.3111,
+        "rmse": 5.4086,
+        "r2": 0.8956
+      }
+    }
+  },
+  "features": [
+    {
+      "name": "age",
+      "label": "Age",
+      "kind": "numeric",
+      "section": "Profile",
+      "description": "Student age in years.",
+      "min": 15,
+      "max": 35,
+      "step": 1,
+      "default": 20,
+      "dataMin": 17.0,
+      "dataMax": 24.0,
+      "mean": 20.498,
+      "scale": 2.306945,
+      "coefficient": -0.027983
+    },
+    {
+      "name": "study_hours_per_day",
+      "label": "Study Hours Per Day",
+      "kind": "numeric",
+      "section": "Academics",
+      "description": "Average daily focused study hours.",
+      "min": 0,
+      "max": 16,
+      "step": 0.1,
+      "unit": "hours",
+      "default": 3.5,
+      "dataMin": 0.0,
+      "dataMax": 8.3,
+      "mean": 3.5501,
+      "scale": 1.468155,
+      "coefficient": 14.042612
+    },
+    {
+      "name": "social_media_hours",
+      "label": "Social Media Hours",
+      "kind": "numeric",
+      "section": "Lifestyle",
+      "description": "Average daily time spent on social media.",
+      "min": 0,
+      "max": 12,
+      "step": 0.1,
+      "unit": "hours",
+      "default": 2.5,
+      "dataMin": 0.0,
+      "dataMax": 7.2,
+      "mean": 2.5055,
+      "scale": 1.171836,
+      "coefficient": -3.046006
+    },
+    {
+      "name": "netflix_hours",
+      "label": "Streaming Hours",
+      "kind": "numeric",
+      "section": "Lifestyle",
+      "description": "Average daily entertainment streaming hours.",
+      "min": 0,
+      "max": 12,
+      "step": 0.1,
+      "unit": "hours",
+      "default": 1.8,
+      "dataMin": 0.0,
+      "dataMax": 5.4,
+      "mean": 1.8197,
+      "scale": 1.07458,
+      "coefficient": -2.449561
+    },
+    {
+      "name": "attendance_percentage",
+      "label": "Attendance Percentage",
+      "kind": "numeric",
+      "section": "Academics",
+      "description": "Recent attendance percentage.",
+      "min": 0,
+      "max": 100,
+      "step": 0.1,
+      "unit": "%",
+      "default": 84.4,
+      "dataMin": 56.0,
+      "dataMax": 100.0,
+      "mean": 84.1317,
+      "scale": 9.394545,
+      "coefficient": 1.345773
+    },
+    {
+      "name": "sleep_hours",
+      "label": "Sleep Hours",
+      "kind": "numeric",
+      "section": "Lifestyle",
+      "description": "Average nightly sleep duration.",
+      "min": 0,
+      "max": 12,
+      "step": 0.1,
+      "unit": "hours",
+      "default": 6.5,
+      "dataMin": 3.2,
+      "dataMax": 10.0,
+      "mean": 6.4701,
+      "scale": 1.225763,
+      "coefficient": 2.439467
+    },
+    {
+      "name": "exercise_frequency",
+      "label": "Exercise Days Per Week",
+      "kind": "numeric",
+      "section": "Lifestyle",
+      "description": "How many days per week the student exercises.",
+      "min": 0,
+      "max": 7,
+      "step": 1,
+      "unit": "days",
+      "default": 3,
+      "dataMin": 0.0,
+      "dataMax": 6.0,
+      "mean": 3.042,
+      "scale": 2.02441,
+      "coefficient": 2.932323
+    },
+    {
+      "name": "mental_health_rating",
+      "label": "Mental Health Rating",
+      "kind": "numeric",
+      "section": "Wellbeing",
+      "description": "Self-rating from 1 (low) to 10 (high).",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "dataMin": 1.0,
+      "dataMax": 10.0,
+      "mean": 5.438,
+      "scale": 2.846077,
+      "coefficient": 5.52764
+    },
+    {
+      "name": "gender",
+      "label": "Gender",
+      "kind": "categorical",
+      "section": "Profile",
+      "description": "Used only because it appears in the training data.",
+      "default": "Female",
+      "options": [
+        "Female",
+        "Male",
+        "Other"
+      ],
+      "coefficients": {
+        "Female": -0.308866,
+        "Male": -0.163276,
+        "Other": 0.472142
+      }
+    },
+    {
+      "name": "part_time_job",
+      "label": "Part-Time Job",
+      "kind": "categorical",
+      "section": "Profile",
+      "description": "Whether the student currently has a part-time job.",
+      "default": "No",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "coefficients": {
+        "No": -0.104599,
+        "Yes": 0.104599
+      }
+    },
+    {
+      "name": "diet_quality",
+      "label": "Diet Quality",
+      "kind": "categorical",
+      "section": "Lifestyle",
+      "description": "Self-assessed diet quality.",
+      "default": "Fair",
+      "options": [
+        "Fair",
+        "Good",
+        "Poor"
+      ],
+      "coefficients": {
+        "Fair": 0.318506,
+        "Good": -0.363234,
+        "Poor": 0.044728
+      }
+    },
+    {
+      "name": "parental_education_level",
+      "label": "Parental Education",
+      "kind": "categorical",
+      "section": "Profile",
+      "description": "Highest parental education level from the training schema.",
+      "default": "High School",
+      "options": [
+        "Bachelor",
+        "High School",
+        "Master",
+        "None"
+      ],
+      "coefficients": {
+        "Bachelor": 0.316673,
+        "High School": 0.15702,
+        "Master": -0.094316,
+        "None": -0.379377
+      }
+    },
+    {
+      "name": "internet_quality",
+      "label": "Internet Quality",
+      "kind": "categorical",
+      "section": "Lifestyle",
+      "description": "Reliability of the student's home internet access.",
+      "default": "Good",
+      "options": [
+        "Average",
+        "Good",
+        "Poor"
+      ],
+      "coefficients": {
+        "Average": 0.185353,
+        "Good": -0.287903,
+        "Poor": 0.10255
+      }
+    },
+    {
+      "name": "extracurricular_participation",
+      "label": "Extracurricular Participation",
+      "kind": "categorical",
+      "section": "Profile",
+      "description": "Whether the student participates in extracurricular activities.",
+      "default": "No",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "coefficients": {
+        "No": 0.006967,
+        "Yes": -0.006967
+      }
+    }
+  ]
+}

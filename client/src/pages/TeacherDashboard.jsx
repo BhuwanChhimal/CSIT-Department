@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BookOpen,
   Users,
@@ -10,7 +10,8 @@ import {
   Bell,
 } from "lucide-react";
 import AssignmentManagementComp from "@/components/AssignmentManagementComp";
-
+import axios from "axios";
+import { format } from "date-fns";
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -106,16 +107,175 @@ const TeacherOverview = () => (
 const AssignmentManagement = () => (
   <div className="space-y-6">
     <h2 className="text-2xl font-bold">Assignment Management</h2>
-    <AssignmentManagementComp/>
+    <AssignmentManagementComp />
   </div>
 );
 
-const AttendanceTracking = () => (
-  <div className="space-y-6">
-    <h2 className="text-2xl font-bold">Attendance Tracking</h2>
-    {/* Add attendance tracking tools */}
-  </div>
-);
+const AttendanceTracking = ({ teacher }) => {
+  const [students, setStudents] = useState([]);
+  const [attendance, setAttendance] = useState({});
+  const [selectedDate, setSelectedDate] = useState(
+    format(new Date(), "yyyy-MM-dd")
+  );
+
+  // Fetch approved students
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5002/api/admin/students",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setStudents(res.data.filter((s) => s.isApproved));
+        console.log("Fetched students:", res.data);
+        console.log(
+          "Approved students:",
+          res.data.filter((s) => s.isApproved)
+        );
+      } catch (err) {
+        console.error("Error fetching students:", err);
+      }
+    };
+    fetchStudents();
+  }, []);
+  useEffect(() => {
+    fetchAttendanceRecords();
+  }, [selectedDate]);
+
+  const fetchAttendanceRecords = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5002/api/attendance/teacher?date=${selectedDate}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // Build a lookup for quick access
+      const lookup = {};
+      res.data.forEach((record) => {
+        lookup[`${record.studentId}_${record.subject}_${record.date}`] = record.status;
+      });
+      setAttendance(lookup);
+    } catch (err) {
+      console.error("Error fetching attendance records:", err);
+    }
+  };
+  // Handle attendance marking
+  const handleMarkAttendance = async (studentId, subject, status) => {
+    try {
+      await axios.post(
+        "http://localhost:5002/api/attendance/mark",
+        {
+          studentId,
+          subject,
+          date: selectedDate,
+          status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      fetchAttendanceRecords(); // <-- Refresh after marking
+    } catch (err) {
+      console.error("Error marking attendance:", err);
+    }
+  };
+ 
+  // Subjects assigned to this teacher
+  const subjects = teacher?.subjects || ["Java", "System Deisgn"];
+  console.log("Teacher subjects:", subjects);
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Attendance</h2>
+      <div className="mb-4">
+        <label className="font-medium mr-2">Date:</label>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+      </div>
+      <div className="bg-white rounded-xl overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-left">Subject</th>
+              <th className="px-4 py-2 text-left">Student Name</th>
+              <th className="px-4 py-2 text-left">Date</th>
+              <th className="px-4 py-2 text-left">Status</th>
+              <th className="px-4 py-2 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subjects.map((subject) => (
+              <React.Fragment key={subject}>
+                <tr className="bg-gray-100">
+                  <td className="px-4 py-2 font-semibold" colSpan={5}>
+                    {subject}
+                  </td>
+                </tr>
+                {students.map((student) => {
+                  const key = `${student._id}_${subject}_${selectedDate}`;
+                  return (
+                    <tr key={key} className="hover:bg-gray-50">
+                      <td className="px-4 py-2"></td>
+                      <td className="px-4 py-2">{student.name}</td>
+                      <td className="px-4 py-2">{selectedDate}</td>
+                      <td className="px-4 py-2">
+                        {attendance[key] || (
+                          <span className="text-gray-400">Not marked</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        <button
+                          className={`px-3 py-1 mr-2 rounded ${
+                            attendance[key] === "Present"
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() =>
+                            handleMarkAttendance(
+                              student._id,
+                              subject,
+                              "Present"
+                            )
+                          }
+                        >
+                          Present
+                        </button>
+                        <button
+                          className={`px-3 py-1 rounded ${
+                            attendance[key] === "Absent"
+                              ? "bg-red-500 text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() =>
+                            handleMarkAttendance(student._id, subject, "Absent")
+                          }
+                        >
+                          Absent
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 const StudentManagement = () => (
   <div className="space-y-6">

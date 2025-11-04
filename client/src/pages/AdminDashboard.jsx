@@ -18,10 +18,71 @@ import {
   X,
 } from "lucide-react";
 import axios from "axios";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 // import { s } from "framer-motion/dist/types.d-CQt5spQA";
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [approvedStudents, setApprovedStudents] = useState([]);
+  const [approvedTeachers, setApprovedTeachers] = useState([]);
+  const [subjects, setSubjects] = useState("");
+  const SUBJECT_LIST = Object.values(subjects).flat().map(subject => subject.name);
+  console.log(SUBJECT_LIST);
+  const fetchApprovedTeachers = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/teachers",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setApprovedTeachers(response.data.filter((t) => t.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved teachers:", error);
+    }
+  };
+
+  const fetchApprovedStudents = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/students",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // Only approved students
+      setApprovedStudents(response.data.filter((s) => s.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved students:", error);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/subjects/all",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSubjects(response.data.data);
+      // console.log(response.data.data)
+      // Assuming response.data is an array of subject names
+      // setSubjectList(response.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  }
+  useEffect(() => {
+    fetchApprovedTeachers();
+    fetchApprovedStudents();
+    fetchSubjects();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -58,14 +119,14 @@ const AdminDashboard = () => {
         {/* Main Content */}
         <div className="flex-1 p-8 pt-60">
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-800">Total Students</h3>
                 <Users size={20} className="text-blue-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">1,247</p>
-              <p className="text-sm text-gray-500 mt-1">+23 this month</p>
+              <p className="text-3xl font-bold text-gray-900">{approvedStudents.length}</p>
+              <p className="text-sm text-gray-500 mt-1">Total Students</p>
             </div>
 
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
@@ -73,7 +134,7 @@ const AdminDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Active Teachers</h3>
                 <GraduationCap size={20} className="text-green-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">84</p>
+              <p className="text-3xl font-bold text-gray-900">{approvedTeachers.length}</p>
               <p className="text-sm text-gray-500 mt-1">Full-time faculty</p>
             </div>
 
@@ -82,26 +143,26 @@ const AdminDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Active Courses</h3>
                 <BookOpen size={20} className="text-purple-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">156</p>
-              <p className="text-sm text-gray-500 mt-1">This semester</p>
+              <p className="text-3xl font-bold text-gray-900">{SUBJECT_LIST.length}</p>
+              <p className="text-sm text-gray-500 mt-1">Total Subjects</p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
+            {/* <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-800">System Alerts</h3>
                 <AlertCircle size={20} className="text-red-500" />
               </div>
               <p className="text-3xl font-bold text-gray-900">3</p>
               <p className="text-sm text-gray-500 mt-1">Require attention</p>
-            </div>
+            </div> */}
           </div>
 
           {/* Dynamic Content Area */}
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 min-h-[500px]">
-            {activeTab === "overview" && <AdminOverview />}
+            {activeTab === "overview" && <AdminOverview setActiveTab={setActiveTab}/>}
             {activeTab === "notices" && <NoticeManagement />}
-            {activeTab === "students" && <StudentManagement />}
-            {activeTab === "teachers" && <TeacherManagement />}
+            {activeTab === "students" && <StudentManagement approvedStudents={approvedStudents}  setApprovedStudents={setApprovedStudents} fetchApprovedStudents/>}
+            {activeTab === "teachers" && <TeacherManagement SUBJECT_LIST={SUBJECT_LIST} approvedTeachers={approvedTeachers} setApprovedTeachers={setApprovedTeachers} subjects={subjects} setSubjects={setSubjects} fetchSubjects fetchApprovedTeachers/>}
           </div>
         </div>
       </div>
@@ -109,7 +170,7 @@ const AdminDashboard = () => {
   );
 };
 
-const AdminOverview = () => (
+const AdminOverview = ({setActiveTab}) => (
   <div className="space-y-6">
     <h2 className="text-2xl font-bold text-gray-800">System Overview</h2>
 
@@ -167,23 +228,26 @@ const AdminOverview = () => (
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-700">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <button className="p-4 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 transition-all flex flex-col items-center gap-2">
+        <div className="flex flex-wrap gap-4 flex-col">
+          <button 
+          onClick={() => setActiveTab("students")}
+          className="p-4 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 transition-all flex flex-col items-center gap-2">
             <Users size={24} />
-            <span className="text-sm font-medium">Add Student</span>
+            <span 
+            className="text-sm font-medium">Add Student</span>
           </button>
-          <button className="p-4 rounded-xl border-2 border-dashed border-green-300 text-green-600 hover:bg-green-50 transition-all flex flex-col items-center gap-2">
+          <button onClick={() => setActiveTab("notices")} className="p-4 rounded-xl border-2 border-dashed border-green-300 text-green-600 hover:bg-green-50 transition-all flex flex-col items-center gap-2">
             <Bell size={24} />
             <span className="text-sm font-medium">New Notice</span>
           </button>
-          <button className="p-4 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all flex flex-col items-center gap-2">
+          <button onClick={()=> setActiveTab("teachers")} className="p-4 rounded-xl border-2 border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 transition-all flex flex-col items-center gap-2">
             <TrendingUp size={24} />
-            <span className="text-sm font-medium">Generate Report</span>
+            <span className="text-sm font-medium">Manage Teachers</span>
           </button>
-          <button className="p-4 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 hover:bg-gray-50 transition-all flex flex-col items-center gap-2">
+          {/* <button className="p-4 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 hover:bg-gray-50 transition-all flex flex-col items-center gap-2">
             <Settings size={24} />
             <span className="text-sm font-medium">System Settings</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
@@ -516,13 +580,11 @@ const NoticeManagement = () => {
   );
 };
 
-const StudentManagement = () => {
+const StudentManagement = ({approvedStudents,fetchApprovedStudents}) => {
   const [pendingStudents, setPendingStudents] = useState([]);
-  const [approvedStudents, setApprovedStudents] = useState([]);
 
   useEffect(() => {
     fetchPendingStudents();
-    fetchApprovedStudents();
   }, []);
 
   const fetchPendingStudents = async () => {
@@ -541,22 +603,7 @@ const StudentManagement = () => {
     }
   };
 
-  const fetchApprovedStudents = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5002/api/admin/students",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      // Only approved students
-      setApprovedStudents(response.data.filter((s) => s.isApproved));
-    } catch (error) {
-      console.error("Error fetching approved students:", error);
-    }
-  };
+
 
   const handleApproveStudent = async (userId) => {
     try {
@@ -678,28 +725,15 @@ const StudentManagement = () => {
   );
 };
 
-const TeacherManagement = () => {
+const TeacherManagement = ({approvedTeachers,fetchApprovedTeachers,SUBJECT_LIST}) => {
   const [pendingTeachers, setPendingTeachers] = useState([]);
-  const [approvedTeachers, setApprovedTeachers] = useState([]);
   const [editSubjectsId, setEditSubjectsId] = useState(null);
-  const [subjectsInput, setSubjectsInput] = useState("");
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [showSubjectsModal, setShowSubjectsModal] = useState(false);
 
-  const SUBJECT_LIST = [
-    "Advanced Java",
-    "DAA",
-    "DSA",
-
-    "Statistics",
-
-    "Database Management",
-    "Operating Systems",
-    "Web Development",
-  ];
+ 
   useEffect(() => {
     fetchPendingTeachers();
-    fetchApprovedTeachers();
   }, []);
 
   const fetchPendingTeachers = async () => {
@@ -718,21 +752,7 @@ const TeacherManagement = () => {
     }
   };
 
-  const fetchApprovedTeachers = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5002/api/admin/teachers",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setApprovedTeachers(response.data.filter((t) => t.isApproved));
-    } catch (error) {
-      console.error("Error fetching approved teachers:", error);
-    }
-  };
+
 
   const handleApproveTeacher = async (userId) => {
     try {
@@ -780,7 +800,7 @@ const TeacherManagement = () => {
         onClick={onClose}
       >
         <div
-          className="bg-white rounded-2xl p-8 w-[400px] shadow-xl relative"
+          className="bg-white rounded-2xl p-8 w-300 shadow-xl relative"
           onClick={handleModalClick}
         >
           <button
@@ -790,7 +810,7 @@ const TeacherManagement = () => {
             <X size={24} />
           </button>
           <h2 className="text-xl font-bold mb-4">Assign Subjects</h2>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-6 gap-4 mb-6">
             {SUBJECT_LIST.map((subject) => (
               <label key={subject} className="flex items-center gap-2">
                 <input
@@ -929,22 +949,18 @@ const TeacherManagement = () => {
                         ))}
                       </div>
                     ) : teacher.subjects && teacher.subjects.length > 0 ? (
-                      teacher.subjects.join(", ")
+                      <span>
+                        {teacher.subjects.length >3 
+                        ? `${teacher.subjects.slice(0,3).join(", ")}...`
+                        : teacher.subjects.join(", ")
+                        }
+                      </span>
                     ) : (
                       <span className="text-gray-400">
                         No subjects assigned
                       </span>
                     )}
                   </td>
-                  {/* <td className="px-6 py-4">
-                    {teacher.subjects && teacher.subjects.length > 0 ? (
-                      teacher.subjects.join(", ")
-                    ) : (
-                      <span className="text-gray-400">
-                        No subjects assigned
-                      </span>
-                    )}
-                  </td> */}
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleEditSubjects(teacher)}

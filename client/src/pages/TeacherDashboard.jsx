@@ -12,14 +12,92 @@ import {
 import AssignmentManagementComp from "@/components/AssignmentManagementComp";
 import axios from "axios";
 import { format } from "date-fns";
+import PlagiarismChecker from "@/components/PlagiarismChecker";
+import useAuthStore from "@/store/authStore";
+
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [submissions, setSubmissions] = useState({});
+  const [assignments, setAssignments] = useState([]);
+  const [students, setStudents] = useState([]);
 
+  const { profile } = useAuthStore();
+  const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
+  // Update pending assignments count whenever submissions change
+  useEffect(() => {
+    let count = 0;
+    Object.values(submissions).forEach((subList) => {
+      subList.forEach((sub) => {
+        if (!sub.grade) count++;
+      });
+    });
+    setPendingAssignmentsCount(count);
+  }, [submissions, setPendingAssignmentsCount]);
+
+  // console.log(profile.subjects)
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+  const token = localStorage.getItem("token");
+  const fetchAssignments = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/assignments/teacher",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAssignments(response.data);
+          // Fetch submissions for all assignments
+    const submissionsObj = {};
+    await Promise.all(
+      response.data.map(async (assignment) => {
+        const res = await axios.get(
+          `http://localhost:5002/api/assignments/${assignment._id}/submissions`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        submissionsObj[assignment._id] = res.data;
+      })
+    );
+    setSubmissions(submissionsObj);
+    } catch (error) {
+      console.log("Failed to fetch assignments:", error);
+    }
+  };
+
+    // Fetch approved students
+    useEffect(() => {
+      const fetchStudents = async () => {
+        try {
+          const res = await axios.get(
+            "http://localhost:5002/api/admin/students",
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+          setStudents(res.data.filter((s) => s.isApproved));
+          console.log("Fetched students:", res.data);
+          console.log(
+            "Approved students:",
+            res.data.filter((s) => s.isApproved)
+          );
+        } catch (err) {
+          console.error("Error fetching students:", err);
+        }
+      };
+      fetchStudents();
+    }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white/80 py-5 rounded-lg ml-4 mt-60 h-[50%] backdrop-blur-xl border-r border-gray-200 p-6">
+        <div className="w-68 bg-white/80 py-5 rounded-lg ml-4 mt-60 h-[50%] backdrop-blur-xl border-r border-gray-200 p-6">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800">Faculty Portal</h2>
             <p className="text-md text-gray-500">Teacher Dashboard</p>
@@ -30,6 +108,11 @@ const TeacherDashboard = () => {
               { id: "assignments", icon: FileText, label: "Assignments" },
               { id: "attendance", icon: Calendar, label: "Attendance" },
               { id: "students", icon: Users, label: "Students" },
+              {
+                id: "ai-features",
+                icon: PieChart,
+                label: "Plagiarism Checker ",
+              },
             ].map((item) => (
               <button
                 key={item.id}
@@ -53,11 +136,13 @@ const TeacherDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800">Today's Classes</h3>
+                <h3 className="font-semibold text-gray-800">Subjects</h3>
                 <Clock size={20} className="text-blue-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">4</p>
-              <p className="text-sm text-gray-500 mt-1">3 Remaining</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {profile?.subjects?.length}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Total Subjects</p>
             </div>
 
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
@@ -67,7 +152,9 @@ const TeacherDashboard = () => {
                 </h3>
                 <CheckCircle size={20} className="text-orange-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">12</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {pendingAssignmentsCount}
+              </p>
               <p className="text-sm text-gray-500 mt-1">To be reviewed</p>
             </div>
 
@@ -85,10 +172,22 @@ const TeacherDashboard = () => {
 
           {/* Dynamic Content Area */}
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 min-h-[500px]">
-            {activeTab === "overview" && <TeacherOverview />}
-            {activeTab === "assignments" && <AssignmentManagement />}
-            {activeTab === "attendance" && <AttendanceTracking />}
-            {activeTab === "students" && <StudentManagement />}
+            {activeTab === "overview" && <TeacherOverview profile={profile} />}
+            {activeTab === "assignments" && (
+              <AssignmentManagement
+                assignments={assignments}
+                setAssignments={setAssignments}
+                fetchAssignments
+                fetchSubmissions
+                submissions={submissions}
+                setSubmissions={setSubmissions}
+                pendingAssignmentsCount={pendingAssignmentsCount}
+                setPendingAssignmentsCount={setPendingAssignmentsCount}
+              />
+            )}
+            {activeTab === "attendance" && <AttendanceTracking students={students} setStudents={setStudents}/>}
+            {activeTab === "students" && <StudentManagement students={students} setStudents={setStudents}/>}
+            {activeTab === "ai-features" && <PlagiarismChecker />}
           </div>
         </div>
       </div>
@@ -97,51 +196,62 @@ const TeacherDashboard = () => {
 };
 
 // Placeholder components - to be implemented separately
-const TeacherOverview = () => (
+const TeacherOverview = ({ profile }) => (
   <div className="space-y-6">
-    <h2 className="text-2xl font-bold">Today's Schedule</h2>
-    {/* Add schedule content */}
+    <h2 className="text-2xl font-bold">My Subjects</h2>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              Subject Name
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {profile?.subjects?.map((subject) => (
+            <tr key={subject.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-6 py-4 whitespace-nowrap text- font-medium text-gray-900">
+                {subject}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
-const AssignmentManagement = () => (
+const AssignmentManagement = ({
+  pendingAssignmentsCount,
+  setPendingAssignmentsCount,
+  submissions,
+  setSubmissions,
+  assignments,
+  setAssignments,
+  fetchAssignments,
+}) => (
   <div className="space-y-6">
     <h2 className="text-2xl font-bold">Assignment Management</h2>
-    <AssignmentManagementComp />
+    <AssignmentManagementComp
+      assignments={assignments}
+      setAssignments={setAssignments}
+      fetchAssignments
+      submissions={submissions}
+      setSubmissions={setSubmissions}
+      pendingAssignmentsCount={pendingAssignmentsCount}
+      setPendingAssignmentsCount={setPendingAssignmentsCount}
+    />
   </div>
 );
 
-const AttendanceTracking = ({ teacher }) => {
-  const [students, setStudents] = useState([]);
+const AttendanceTracking = ({students,setStudents, teacher }) => {
   const [attendance, setAttendance] = useState({});
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
 
-  // Fetch approved students
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:5002/api/admin/students",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setStudents(res.data.filter((s) => s.isApproved));
-        console.log("Fetched students:", res.data);
-        console.log(
-          "Approved students:",
-          res.data.filter((s) => s.isApproved)
-        );
-      } catch (err) {
-        console.error("Error fetching students:", err);
-      }
-    };
-    fetchStudents();
-  }, []);
+
   useEffect(() => {
     fetchAttendanceRecords();
   }, [selectedDate]);
@@ -159,7 +269,8 @@ const AttendanceTracking = ({ teacher }) => {
       // Build a lookup for quick access
       const lookup = {};
       res.data.forEach((record) => {
-        lookup[`${record.studentId}_${record.subject}_${record.date}`] = record.status;
+        lookup[`${record.studentId}_${record.subject}_${record.date}`] =
+          record.status;
       });
       setAttendance(lookup);
     } catch (err) {
@@ -188,7 +299,7 @@ const AttendanceTracking = ({ teacher }) => {
       console.error("Error marking attendance:", err);
     }
   };
- 
+
   // Subjects assigned to this teacher
   const subjects = teacher?.subjects || ["Java", "System Deisgn"];
   console.log("Teacher subjects:", subjects);
@@ -277,11 +388,41 @@ const AttendanceTracking = ({ teacher }) => {
   );
 };
 
-const StudentManagement = () => (
+const StudentManagement = ({students,setStudents}) => {
+  console.log("Students in StudentManagement:", students);
+  return(
   <div className="space-y-6">
     <h2 className="text-2xl font-bold">Student Management</h2>
-    {/* Add student management tools */}
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              Students Name
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {students?.map((student) => {
+            const key = `${student._id}`;
+            return(
+            <tr key={key} className="hover:bg-gray-50 transition-colors">
+              <td className="px-6 py-4 whitespace-nowrap text- font-medium text-gray-900">
+                {student.name}
+              </td>
+            </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  );
+};
+
+const PlagiarismCheckerContent = () => (
+  <div className="space-y-6">
+    <PlagiarismChecker />
   </div>
 );
-
 export default TeacherDashboard;

@@ -1,29 +1,32 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Calendar, 
-  FileText, 
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  BookOpen,
+  GraduationCap,
+  Calendar,
+  FileText,
   ChevronRight,
   PieChart,
-  Clock
-} from 'lucide-react';
-import StudentAssignmentView from '@/components/StudentAssignmentView';
+  Clock,
+} from "lucide-react";
+import StudentAssignmentView from "@/components/StudentAssignmentView";
 import useAuthStore from "@/store/authStore";
-import MarksPredictor from '@/components/MarksPredictor';
-
+import MarksPredictor from "@/components/MarksPredictor";
+import axios from "axios";
 const StudentDashboard = () => {
   // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { profile } = useAuthStore();
   const [selectedSemester, setSelectedSemester] = useState(
-    localStorage.getItem(`studentSemester_${profile?._id}`) || null 
+    localStorage.getItem(`studentSemester_${profile?._id}`) || null
   );
   const [showSemesterModal, setShowSemesterModal] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
+
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [attendancePercentage, setAttendancePercentage] = useState(0);
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
@@ -34,25 +37,46 @@ const StudentDashboard = () => {
     setSelectedSemester(semester);
     setShowSemesterModal(false);
   };
- useEffect(() => {
+  useEffect(() => {
     if (profile?._id && !isInitialized) {
-      const storedSemester = localStorage.getItem(`studentSemester_${profile._id}`);
-      
+      const storedSemester = localStorage.getItem(
+        `studentSemester_${profile._id}`
+      );
+
       if (storedSemester) {
         setSelectedSemester(storedSemester);
         setShowSemesterModal(false);
       } else {
         setShowSemesterModal(true);
       }
-      
+
       setIsInitialized(true);
     }
   }, [profile?._id, isInitialized]);
 
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      const res = await axios.get(
+        `http://localhost:5002/api/attendance/status?studentId=${profile?._id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      setAttendanceRecords(res.data);
+
+      // Calculate percentage
+      const total = res.data.length;
+      const present = res.data.filter((r) => r.status === "Present").length;
+      const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+      setAttendancePercentage(percentage);
+    };
+    fetchAttendance();
+  }, [profile?._id]);
   // Callback function to update pending assignments count
   const updatePendingAssignmentsCount = (count) => {
     setPendingAssignmentsCount(count);
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Semester Selection Modal */}
@@ -87,19 +111,23 @@ const StudentDashboard = () => {
 
           <nav className="space-y-4 text-lg">
             {[
-              { id: 'overview', icon: BookOpen, label: 'Overview' },
-              { id: 'assignments', icon: FileText, label: 'Assignments' },
-              { id: 'attendance', icon: Calendar, label: 'Attendance' },
-              { id: 'academics', icon: GraduationCap, label: 'Academic' },
-              { id: 'ai-feature', icon: ChevronRight, label: 'Marks Predictor' },
+              { id: "overview", icon: BookOpen, label: "Overview" },
+              { id: "assignments", icon: FileText, label: "Assignments" },
+              { id: "attendance", icon: Calendar, label: "Attendance" },
+              { id: "academics", icon: GraduationCap, label: "Academic" },
+              {
+                id: "ai-feature",
+                icon: ChevronRight,
+                label: "Marks Predictor",
+              },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleTabChange(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  activeTab === item.id 
-                    ? 'bg-blue-500 text-white' 
-                    : 'text-gray-600 hover:bg-gray-100'
+                  activeTab === item.id
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 <item.icon size={20} />
@@ -118,16 +146,20 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Attendance Rate</h3>
                 <PieChart size={20} className="text-blue-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">85%</p>
+              <p className="text-3xl font-bold text-gray-900">{attendancePercentage}%</p>
               <p className="text-sm text-gray-500 mt-1">Last 30 days</p>
             </div>
 
             <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800">Pending Assignments</h3>
+                <h3 className="font-semibold text-gray-800">
+                  Pending Assignments
+                </h3>
                 <FileText size={20} className="text-orange-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{pendingAssignmentsCount}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {pendingAssignmentsCount}
+              </p>
               <p className="text-sm text-gray-500 mt-1">Due this week</p>
             </div>
 
@@ -136,18 +168,24 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Next Class</h3>
                 <Clock size={20} className="text-green-500" />
               </div>
-              <p className="text-xl font-bold text-gray-900">Database Management</p>
+              <p className="text-xl font-bold text-gray-900">
+                Database Management
+              </p>
               <p className="text-sm text-gray-500 mt-1">Today at 11:00 AM</p>
             </div>
           </div>
 
           {/* Dynamic Content Area */}
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 min-h-[500px]">
-            {activeTab === 'overview' && <OverviewContent />}
-            {activeTab === 'assignments' && <AssignmentsContent updatePendingAssignmentsCount={updatePendingAssignmentsCount}/>}
-            {activeTab === 'attendance' && <AttendanceContent />}
-            {activeTab === 'academics' && <AcademicsContent />}
-            {activeTab === 'ai-feature' && <MarksPredictorContent/>}
+            {activeTab === "overview" && <OverviewContent />}
+            {activeTab === "assignments" && (
+              <AssignmentsContent
+                updatePendingAssignmentsCount={updatePendingAssignmentsCount}
+              />
+            )}
+            {activeTab === "attendance" && <AttendanceContent />}
+            {activeTab === "academics" && <AcademicsContent />}
+            {activeTab === "ai-feature" && <MarksPredictorContent />}
           </div>
         </div>
       </div>
@@ -163,10 +201,12 @@ const OverviewContent = () => (
   </div>
 );
 
-const AssignmentsContent = ({updatePendingAssignmentsCount}) => (
+const AssignmentsContent = ({ updatePendingAssignmentsCount }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6">Assignments</h2>
-      <StudentAssignmentView updatePendingAssignmentsCount={updatePendingAssignmentsCount}/>
+    <StudentAssignmentView
+      updatePendingAssignmentsCount={updatePendingAssignmentsCount}
+    />
   </div>
 );
 
@@ -187,8 +227,8 @@ const AcademicsContent = () => (
 const MarksPredictorContent = () => (
   <div>
     {/* Add marks predictor content */}
-    <MarksPredictor/>
+    <MarksPredictor />
   </div>
-)
+);
 
 export default StudentDashboard;

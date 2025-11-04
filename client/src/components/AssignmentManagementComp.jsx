@@ -7,12 +7,11 @@ import {
   BookOpen,
   Hash,
   Calendar,
-  Trash2
+  Trash2,
 } from "lucide-react";
-import {toast} from 'react-hot-toast';
-const AssignmentManagementComp = () => {
-  const [assignments, setAssignments] = useState([]);
-  const [submissions, setSubmissions] = useState({});
+import { toast } from "react-hot-toast";
+const AssignmentManagementComp = ({submissions,setSubmissions,setPendingAssignmentsCount,assignments,setAssignments,fetchAssignments}) => {
+  // const [submissions, setSubmissions] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -24,25 +23,21 @@ const AssignmentManagementComp = () => {
     file: null,
   });
   const token = localStorage.getItem("token");
-  useEffect(() => {
-    fetchAssignments();
-  }, []);
 
-  const fetchAssignments = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5002/api/assignments/teacher",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setAssignments(response.data);
-    } catch (error) {
-      setError("Failed to fetch assignments:", error);
-    }
-  };
+
+
+  // Update pending assignments count whenever submissions change
+  useEffect(() => {
+    let count = 0;
+    Object.values(submissions).forEach((subList) => {
+      subList.forEach((sub) => {
+        if (!sub.grade) count++;
+      });
+    });
+    setPendingAssignmentsCount(count);
+  }, [submissions]);
+
+
   const fetchSubmissions = async (assignmentId) => {
     try {
       const res = await axios.get(
@@ -53,7 +48,7 @@ const AssignmentManagementComp = () => {
           },
         }
       );
-      console.log(res.data)
+      console.log(res.data);
       console.log(res.data.submissions); // list of all submissions
       setSubmissions((prev) => ({
         ...prev,
@@ -113,6 +108,28 @@ const AssignmentManagementComp = () => {
       console.error("Error deleting assignment:", err);
       alert("Error deleting assignment. Please try again.");
     }
+  };
+
+  const GRADE_OPTIONS = ["A+", "A", "B+", "B", "C+", "C", "D", "E"];
+
+  const [gradingSubmission, setGradingSubmission] = useState(null);
+  const [selectedGrade, setSelectedGrade] = useState("");
+
+  const handleOpenGrade = (submission) => {
+    setGradingSubmission(submission);
+    setSelectedGrade(submission.grade || "");
+  };
+
+  const handleGradeSubmit = async (assignmentId, studentId) => {
+    await axios.put(
+      `http://localhost:5002/api/assignments/${assignmentId}/grade/${studentId}`,
+      { grade: selectedGrade },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    setGradingSubmission(null);
+    setSelectedGrade("");
+    // Optionally refresh submissions
+    fetchSubmissions(assignmentId);
   };
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -323,7 +340,7 @@ const AssignmentManagementComp = () => {
                     <Trash2 size={28} />
                   </button>
                 </div>
-               
+
                 {submissions[assignment._id] && (
                   <div className="mt-4 border-t pt-3">
                     <h5 className="font-medium text-gray-800 mb-2">
@@ -349,14 +366,88 @@ const AssignmentManagementComp = () => {
                                 {new Date(sub.submittedAt).toLocaleString()}
                               </p>
                             </div>
-                            <a
-                              href={`http://localhost:5002/${sub.fileUrl}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                            >
-                              Download
-                            </a>
+                            <div className="flex gap-4">
+                              <a
+                                href={`http://localhost:5002/${sub.fileUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-3 rounded-lg  bg-blue-600 text-white text-sm  hover:bg-blue-700"
+                              >
+                                Download
+                              </a>
+                              {!sub.grade && (
+                                <button
+                                  className="bg-green-600 p-3 rounded-lg text-white"
+                                  onClick={() => handleOpenGrade(sub)}
+                                >
+                                  Grade
+                                </button>
+                              )}
+                              {sub.grade && (
+                                <span
+                                  onClick={() => handleOpenGrade(sub)}
+                                  className="ml-2 cursor-pointer bg-gray-400 flex items-center p-3 rounded-lg text-white"
+                                >
+                                  Graded: {sub.grade}
+                                </span>
+                              )}
+
+                              {gradingSubmission && (
+                                <div
+                                  className="fixed inset-[60%] w-64 h-64 flex items-center justify-center z-50"
+                                  onClick={() => setGradingSubmission(null)}
+                                >
+                                  <div
+                                    className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-xs relative"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <button
+                                      className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                                      onClick={() => setGradingSubmission(null)}
+                                    >
+                                      <svg
+                                        width="24"
+                                        height="24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                      >
+                                        <path d="M6 6l12 12M6 18L18 6" />
+                                      </svg>
+                                    </button>
+                                    <h3 className="text-xl font-semibold mb-6 text-gray-800 text-center">
+                                      Assign Grade
+                                    </h3>
+                                    <div className="mb-6">
+                                      <select
+                                        value={selectedGrade}
+                                        onChange={(e) =>
+                                          setSelectedGrade(e.target.value)
+                                        }
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-gray-700"
+                                      >
+                                        <option value="">Select Grade</option>
+                                        {GRADE_OPTIONS.map((g) => (
+                                          <option key={g} value={g}>
+                                            {g}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                    <button
+                                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                      onClick={() =>
+                                        handleGradeSubmit(
+                                          assignment._id,
+                                          gradingSubmission.student?._id
+                                        )
+                                      }
+                                    >
+                                      Save Grade
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </li>
                         ))}
                       </ul>

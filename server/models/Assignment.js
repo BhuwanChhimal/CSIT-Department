@@ -51,6 +51,11 @@ const assignmentSchema = new mongoose.Schema({
       submittedAt: {
         type: Date,
         default: Date.now
+      },
+      grade:{
+        type: String,
+        enum: ["A+", "A", "B+", "B", "C+", "C", "D", "E"],
+        default: null
       }
     }
   ]

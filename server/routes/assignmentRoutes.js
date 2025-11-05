@@ -11,6 +11,7 @@ import {
 import upload from "../utils/multerConfig.js";
 import multer from "multer";
 import studentUpload from "../utils/studentmulterConfig.js";
+import { gradeSubmission, getStudentGrades } from "../controllers/assignmentController.js";
 
 const router = express.Router();
 
@@ -49,5 +50,8 @@ router.delete("/:id", protect, deleteAssignment);
 
 router.get("/teacher", protect, getTeacherAssignments);
 router.get('/student', protect, getStudentAssignments);
+
+router.put("/:assignmentId/grade/:studentId", protect, gradeSubmission);
+router.get("/grades/:studentId", protect, getStudentGrades);
 
 export default router;

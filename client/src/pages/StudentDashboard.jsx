@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   BookOpen,
   GraduationCap,
@@ -7,6 +7,8 @@ import {
   ChevronRight,
   PieChart,
   Clock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import StudentAssignmentView from "@/components/StudentAssignmentView";
 import useAuthStore from "@/store/authStore";
@@ -63,7 +65,7 @@ const StudentDashboard = () => {
         }
       );
       setAttendanceRecords(res.data);
-
+      console.log(attendanceRecords);
       // Calculate percentage
       const total = res.data.length;
       const present = res.data.filter((r) => r.status === "Present").length;
@@ -114,7 +116,7 @@ const StudentDashboard = () => {
               { id: "overview", icon: BookOpen, label: "Overview" },
               { id: "assignments", icon: FileText, label: "Assignments" },
               { id: "attendance", icon: Calendar, label: "Attendance" },
-              { id: "academics", icon: GraduationCap, label: "Academic" },
+              // { id: "academics", icon: GraduationCap, label: "Academic" },
               {
                 id: "ai-feature",
                 icon: ChevronRight,
@@ -146,7 +148,9 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold text-gray-800">Attendance Rate</h3>
                 <PieChart size={20} className="text-blue-500" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{attendancePercentage}%</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {attendancePercentage}%
+              </p>
               <p className="text-sm text-gray-500 mt-1">Last 30 days</p>
             </div>
 
@@ -183,8 +187,8 @@ const StudentDashboard = () => {
                 updatePendingAssignmentsCount={updatePendingAssignmentsCount}
               />
             )}
-            {activeTab === "attendance" && <AttendanceContent />}
-            {activeTab === "academics" && <AcademicsContent />}
+            {activeTab === "attendance" && <AttendanceContent attendanceRecords={attendanceRecords}/>}
+            {/* {activeTab === "academics" && <AcademicsContent />} */}
             {activeTab === "ai-feature" && <MarksPredictorContent />}
           </div>
         </div>
@@ -210,19 +214,147 @@ const AssignmentsContent = ({ updatePendingAssignmentsCount }) => (
   </div>
 );
 
-const AttendanceContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-6">Attendance Records</h2>
-    {/* Add attendance content */}
-  </div>
-);
+const AttendanceContent = ({attendanceRecords}) => {
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
 
-const AcademicsContent = () => (
-  <div>
-    <h2 className="text-2xl font-bold mb-6">Academic Records</h2>
-    {/* Add academic records content */}
+  const [selectedDate, setSelectedDate] = useState(getTodayDate());
+
+  // Filter attendance records for selected date
+  const filteredRecords = useMemo(() => {
+    return attendanceRecords.filter((record) => record.date === selectedDate);
+  }, [selectedDate]);
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+  // Calculate attendance statistics
+  const stats = useMemo(() => {
+    const present = filteredRecords.filter(
+      (r) => r.status === "Present"
+    ).length;
+    const absent = filteredRecords.filter((r) => r.status === "Absent").length;
+    const total = filteredRecords.length;
+    return { present, absent, total };
+  }, [filteredRecords]);
+  return (
+    <div className="bg-gradient-to-br  p-6">
+    <div className="max-w-8xl mx-auto">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Attendance Dashboard</h1>
+        <p className="text-gray-600">View your attendance records by date</p>
+      </div>
+
+      {/* Date Selector */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          <Calendar className="inline w-5 h-5 mr-2" />
+          Select Date
+        </label>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+        <p className="mt-3 text-sm text-gray-600">{formatDate(selectedDate)}</p>
+      </div>
+
+      {/* Statistics */}
+      {filteredRecords.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <p className="text-gray-600 text-sm mb-1">Total Classes</p>
+            <p className="text-3xl font-bold text-gray-800">{stats.total}</p>
+          </div>
+          <div className="bg-green-50 rounded-lg shadow p-4 text-center">
+            <p className="text-green-700 text-sm mb-1">Present</p>
+            <p className="text-3xl font-bold text-green-600">{stats.present}</p>
+          </div>
+          <div className="bg-red-50 rounded-lg shadow p-4 text-center">
+            <p className="text-red-700 text-sm mb-1">Absent</p>
+            <p className="text-3xl font-bold text-red-600">{stats.absent}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance Records */}
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Attendance Records
+        </h2>
+        
+        {filteredRecords.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-3">
+              <Calendar className="w-16 h-16 mx-auto" />
+            </div>
+            <p className="text-gray-600 text-lg">No attendance records found for this date</p>
+            <p className="text-gray-500 text-sm mt-2">Try selecting a different date</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredRecords.map((record) => (
+              <div
+                key={record._id}
+                className={`flex items-center justify-between p-4 rounded-lg border-2 transition ${
+                  record.status === "Present"
+                    ? "bg-green-50 border-green-200 hover:bg-green-100"
+                    : "bg-red-50 border-red-200 hover:bg-red-100"
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  {record.status === "Present" ? (
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  ) : (
+                    <XCircle className="w-8 h-8 text-red-600" />
+                  )}
+                  <div>
+                    <p>Subject:</p>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {record.subject}
+                    </h3>
+                 
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span
+                    className={`inline-block px-4 py-2 rounded-full font-semibold text-sm ${
+                      record.status === "Present"
+                        ? "bg-green-200 text-green-800"
+                        : "bg-red-200 text-red-800"
+                    }`}
+                  >
+                    {record.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   </div>
-);
+  );
+};
+
+// const AcademicsContent = () => (
+//   <div>
+//     <h2 className="text-2xl font-bold mb-6">Academic Records</h2>
+//     {/* Add academic records content */}
+//   </div>
+// );
 
 const MarksPredictorContent = () => (
   <div>

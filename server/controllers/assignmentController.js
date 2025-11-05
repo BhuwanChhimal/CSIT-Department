@@ -114,3 +114,43 @@ export const getSubmissionsForTeacher = async (req, res) => {
     res.status(500).json({message: 'Error fetching submissions'});
   }
 }
+
+export const gradeSubmission = async (req, res) => {
+  try {
+    const { assignmentId, studentId } = req.params;
+    const { grade } = req.body;
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) return res.status(404).json({ message: "Assignment not found" });
+
+    const submission =  assignment.submissions.find(
+      (sub) => sub.student.toString() === studentId
+    );
+    if (!submission) return res.status(404).json({ message: "Submission not found" });
+
+    submission.grade = grade;
+    await assignment.save();
+    res.json({ success: true, grade });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getStudentGrades = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const assignments = await Assignment.find({ "submissions.student": studentId });
+    const grades = assignments.map((assignment) => {
+      const submission = assignment.submissions.find(
+        (sub) => sub.student.toString() === studentId
+      );
+      return {
+        assignmentId: assignment._id,
+        title: assignment.title,
+        grade: submission?.grade || null,
+      };
+    });
+    res.json(grades);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

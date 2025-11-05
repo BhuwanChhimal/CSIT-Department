@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MainNavbar from "./components/MainNavbar";
 import { Routes, Route } from "react-router";
 import AuthPage from "./pages/AuthPage";
@@ -22,7 +22,24 @@ import EighthSem from "./pages/semesters/EighthSem";
 import StudentProfile from "./pages/profile/StudentProfile";
 import TeacherProfile from "./pages/profile/TeacherProfile";
 import AdminProfile from "./pages/profile/AdminProfile";
+import axios from "axios";
+import SyllabusPage from "./pages/syllabus/SyllabusPage";
 const App = () => {
+  const [subjects, setSubjects] = useState([]);
+  const getSubjectId = async () => {
+    try {
+      const res = await axios.get("http://localhost:5002/api/subjects/all");
+
+      setSubjects(res.data.data);
+      console.log("app.jsx:", res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getSubjectId();
+  }, []);
+
   return (
     <div className="relative">
       <div className="fixed top-0 w-full z-50">
@@ -47,6 +64,7 @@ const App = () => {
           <Route path="/semester/6" element={<SixthSem />} />
           <Route path="/semester/7" element={<SeventhSem />} />
           <Route path="/semester/8" element={<EighthSem />} />
+
           <Route
             path="/student/dashboard"
             element={
@@ -94,6 +112,12 @@ const App = () => {
                 <AdminProfile />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+      
+            path={`/semester/:semester/subject/:subjectId`}
+            element={<SyllabusPage />}
           />
         </Routes>
       </div>

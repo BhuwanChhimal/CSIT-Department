@@ -36,7 +36,7 @@ const SeventhSem = () => {
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              onClick={() => navigate(`/semester/1/subject/${subject._id}`)}
+              onClick={() => navigate(`/semester/7/subject/${subject._id}`)}
               className="bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-gray-200 
                        p-8 lg:p-10 hover:shadow-xl hover:border-blue-300 transition-all 
                        duration-300 cursor-pointer group"

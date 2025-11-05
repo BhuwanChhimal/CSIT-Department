@@ -8,6 +8,7 @@ import {
   Clock,
   CheckCircle,
   Bell,
+  Loader2,
 } from "lucide-react";
 import AssignmentManagementComp from "@/components/AssignmentManagementComp";
 import axios from "axios";
@@ -21,7 +22,16 @@ const TeacherDashboard = () => {
   const [assignments, setAssignments] = useState([]);
   const [students, setStudents] = useState([]);
 
-  const { profile } = useAuthStore();
+  const { profile,isLoading: profileLoading,fetchProfile } = useAuthStore();
+
+  useEffect(() => {
+    if (!profile && !profileLoading) {
+      fetchProfile();
+    }
+  }, [profile,profileLoading, fetchProfile]);
+
+
+
   const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
   // Update pending assignments count whenever submissions change
   useEffect(() => {
@@ -93,6 +103,13 @@ const TeacherDashboard = () => {
       };
       fetchStudents();
     }, []);
+    if (profileLoading || !profile) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      );
+    }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="flex">
@@ -185,7 +202,7 @@ const TeacherDashboard = () => {
                 setPendingAssignmentsCount={setPendingAssignmentsCount}
               />
             )}
-            {activeTab === "attendance" && <AttendanceTracking students={students} setStudents={setStudents}/>}
+            {activeTab === "attendance" && <AttendanceTracking students={students} setStudents={setStudents} profile={profile}/>}
             {activeTab === "students" && <StudentManagement students={students} setStudents={setStudents}/>}
             {activeTab === "ai-features" && <PlagiarismChecker />}
           </div>
@@ -245,7 +262,7 @@ const AssignmentManagement = ({
   </div>
 );
 
-const AttendanceTracking = ({students,setStudents, teacher }) => {
+const AttendanceTracking = ({students,setStudents, teacher,profile }) => {
   const [attendance, setAttendance] = useState({});
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
@@ -299,10 +316,35 @@ const AttendanceTracking = ({students,setStudents, teacher }) => {
       console.error("Error marking attendance:", err);
     }
   };
-
+    // Handle marking all students for a subject
+    const handleMarkAllAttendance = async (subject, status) => {
+      try {
+        await Promise.all(
+          students.map((student) =>
+            axios.post(
+              "http://localhost:5002/api/attendance/mark",
+              {
+                studentId: student._id,
+                subject,
+                date: selectedDate,
+                status,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            )
+          )
+        );
+        fetchAttendanceRecords(); // Refresh after marking all
+      } catch (err) {
+        console.error("Error marking all attendance:", err);
+      }
+    };
   // Subjects assigned to this teacher
-  const subjects = teacher?.subjects || ["Java", "System Deisgn"];
-  console.log("Teacher subjects:", subjects);
+  // const subjects = profile?.subjects || ["Java", "System Deisgn"];
+  // console.log("Teacher subjects:", subjects);
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Attendance</h2>
@@ -316,65 +358,84 @@ const AttendanceTracking = ({students,setStudents, teacher }) => {
         />
       </div>
       <div className="bg-white rounded-xl overflow-hidden">
-        <table className="w-full">
+        <table className="w-full  min-w-[800px] table-fixed">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2 text-left">Subject</th>
-              <th className="px-4 py-2 text-left">Student Name</th>
-              <th className="px-4 py-2 text-left">Date</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Action</th>
+            <th className="w-[20%] px-4 py-3 text-left text-sm font-semibold">Subject</th>
+              <th className="w-[20%] px-4 py-3 text-left text-sm font-semibold">Student Name</th>
+              <th className="w-[15%] px-4 py-3 text-left text-sm font-semibold">Date</th>
+              <th className="w-[15%] px-4 py-3 text-left text-sm font-semibold">Status</th>
+              <th className="w-[30%] px-4 py-3 text-left text-sm font-semibold">Action</th>
             </tr>
           </thead>
           <tbody>
-            {subjects.map((subject) => (
+            {profile?.subjects?.map((subject) => (
               <React.Fragment key={subject}>
-                <tr className="bg-gray-100">
-                  <td className="px-4 py-2 font-semibold" colSpan={5}>
-                    {subject}
+                  <tr className="bg-gray-100 border-t border-gray-200">
+                  <td className="px-4 py-3 font-semibold">{subject}</td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        className="px-3 py-1.5 text-sm rounded bg-green-500 text-white hover:bg-green-600 transition-colors whitespace-nowrap"
+                        onClick={() => handleMarkAllAttendance(subject, "Present")}
+                      >
+                        Mark All Present
+                      </button>
+                      <button
+                        className="px-3 py-1.5 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition-colors whitespace-nowrap"
+                        onClick={() => handleMarkAllAttendance(subject, "Absent")}
+                      >
+                        Mark All Absent
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 {students.map((student) => {
                   const key = `${student._id}_${subject}_${selectedDate}`;
                   return (
-                    <tr key={key} className="hover:bg-gray-50">
-                      <td className="px-4 py-2"></td>
-                      <td className="px-4 py-2">{student.name}</td>
-                      <td className="px-4 py-2">{selectedDate}</td>
-                      <td className="px-4 py-2">
+                    <tr key={key} className="hover:bg-gray-50 border-t border-gray-100">
+                      <td className="px-4 py-3"></td>
+                      <td className="px-4 py-3">{student.name}</td>
+                      <td className="px-4 py-3 ">{selectedDate}</td>
+                      <td className="px-4 py-3 ">
                         {attendance[key] || (
                           <span className="text-gray-400">Not marked</span>
                         )}
                       </td>
-                      <td className="px-4 py-2">
-                        <button
-                          className={`px-3 py-1 mr-2 rounded ${
-                            attendance[key] === "Present"
-                              ? "bg-green-500 text-white"
-                              : "bg-gray-200"
-                          }`}
-                          onClick={() =>
-                            handleMarkAttendance(
-                              student._id,
-                              subject,
-                              "Present"
-                            )
-                          }
-                        >
-                          Present
-                        </button>
-                        <button
-                          className={`px-3 py-1 rounded ${
-                            attendance[key] === "Absent"
-                              ? "bg-red-500 text-white"
-                              : "bg-gray-200"
-                          }`}
-                          onClick={() =>
-                            handleMarkAttendance(student._id, subject, "Absent")
-                          }
-                        >
-                          Absent
-                        </button>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <button
+                            className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                              attendance[key] === "Present"
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-200 hover:bg-gray-300"
+                            }`}
+                            onClick={() =>
+                              handleMarkAttendance(
+                                student._id,
+                                subject,
+                                "Present"
+                              )
+                            }
+                          >
+                            Present
+                          </button>
+                          <button
+                            className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                              attendance[key] === "Absent"
+                                ? "bg-red-500 text-white"
+                                : "bg-gray-200 hover:bg-gray-300"
+                            }`}
+                            onClick={() =>
+                              handleMarkAttendance(student._id, subject, "Absent")
+                            }
+                          >
+                            Absent
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

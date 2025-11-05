@@ -4,7 +4,7 @@ import { TrendingUp, ArrowRight, Target, BarChart3 } from 'lucide-react';
 export default function MarksPredictor() {
   const handlePredictorClick = () => {
     // This would link to your Python script website
-    window.open('http://localhost:8501', '_blank');
+    window.open('http://localhost:8502', '_blank');
   };
 
   return (

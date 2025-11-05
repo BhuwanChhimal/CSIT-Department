@@ -1,26 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   User, Mail, Phone, MapPin, Users, School, 
   Settings, Activity, Clock, Shield 
 } from 'lucide-react';
+import useAuthStore from '@/store/authStore';
+import axios from 'axios';
 
 const AdminProfile = () => {
+  const {profile} = useAuthStore();
+
   const adminData = {
-    name: "Admin Name",
-    email: "admin@ascamrit.edu.np",
+    name: profile?.name || "Admin User",
+    email: profile?.email || "",
     phone: "+977-9876543210",
     address: "Kathmandu, Nepal",
-    role: "System Administrator",
+    role: profile?.role || "System Administrator",
     department: "IT Administration",
     joinDate: "2015",
     lastActive: "2 hours ago"
-  };
-
-  const systemStats = {
-    totalStudents: 1200,
-    totalTeachers: 45,
-    totalDepartments: 6,
-    activeUsers: 850
   };
 
   const recentActivities = [
@@ -29,6 +26,68 @@ const AdminProfile = () => {
     { id: 3, action: "Generated semester report", time: "1 day ago" },
     { id: 4, action: "System maintenance", time: "2 days ago" }
   ];
+
+  const [approvedStudents, setApprovedStudents] = useState([]);
+  const [approvedTeachers, setApprovedTeachers] = useState([]);
+  const [subjects, setSubjects] = useState("");
+  const SUBJECT_LIST = Object.values(subjects).flat().map(subject => subject.name);
+  console.log(SUBJECT_LIST);
+  const fetchApprovedTeachers = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/teachers",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setApprovedTeachers(response.data.filter((t) => t.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved teachers:", error);
+    }
+  };
+
+  const fetchApprovedStudents = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/admin/students",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // Only approved students
+      setApprovedStudents(response.data.filter((s) => s.isApproved));
+    } catch (error) {
+      console.error("Error fetching approved students:", error);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5002/api/subjects/all",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSubjects(response.data.data);
+      // console.log(response.data.data)
+      // Assuming response.data is an array of subject names
+      // setSubjectList(response.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  }
+  useEffect(() => {
+    fetchApprovedTeachers();
+    fetchApprovedStudents();
+    fetchSubjects();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-55 px-4 md:px-8">
@@ -61,7 +120,7 @@ const AdminProfile = () => {
         </div>
 
         {/* System Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200 p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-100 rounded-2xl">
@@ -69,7 +128,7 @@ const AdminProfile = () => {
               </div>
               <div>
                 <p className="text-gray-600">Total Students</p>
-                <p className="text-2xl font-bold text-gray-800">{systemStats.totalStudents}</p>
+                <p className="text-2xl font-bold text-gray-800">{approvedStudents.length}</p>
               </div>
             </div>
           </div>
@@ -81,7 +140,7 @@ const AdminProfile = () => {
               </div>
               <div>
                 <p className="text-gray-600">Total Teachers</p>
-                <p className="text-2xl font-bold text-gray-800">{systemStats.totalTeachers}</p>
+                <p className="text-2xl font-bold text-gray-800">{approvedTeachers.length}</p>
               </div>
             </div>
           </div>
@@ -92,41 +151,16 @@ const AdminProfile = () => {
                 <Settings size={24} className="text-blue-500" />
               </div>
               <div>
-                <p className="text-gray-600">Departments</p>
-                <p className="text-2xl font-bold text-gray-800">{systemStats.totalDepartments}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200 p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-2xl">
-                <Activity size={24} className="text-blue-500" />
-              </div>
-              <div>
-                <p className="text-gray-600">Active Users</p>
-                <p className="text-2xl font-bold text-gray-800">{systemStats.activeUsers}</p>
+                <p className="text-gray-600">Active Courses</p>
+                <p className="text-2xl font-bold text-gray-800">{SUBJECT_LIST.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions & Recent Activities */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200 p-6 md:p-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {['Add User', 'Manage Roles', 'System Settings', 'View Reports'].map((action, index) => (
-                <button
-                  key={index}
-                  className="p-4 bg-blue-50 rounded-2xl text-blue-600 font-medium hover:bg-blue-100 transition-colors"
-                >
-                  {action}
-                </button>
-              ))}
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 gap-6">
+  
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200 p-6 md:p-8">
             <h2 className="text-xl font-bold text-gray-800 mb-6">Recent Activities</h2>
             <div className="space-y-4">

@@ -1,10 +1,12 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, GraduationCap } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import axios from 'axios';
 
 const StudentProfile = () => {
   const { profile, isLoading, error, fetchProfile } = useAuthStore();
-
+    const [attendanceRecords, setAttendanceRecords] = useState([]);
+    const [attendancePercentage, setAttendancePercentage] = useState(0);
   useEffect(() => {
     console.log('Fetching profile...'); // Debug log
     fetchProfile();
@@ -13,17 +15,32 @@ const StudentProfile = () => {
   useEffect(() => {
     console.log('Current profile:',profile); // Debug log
   }, [profile]);
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      const res = await axios.get(
+        `http://localhost:5002/api/attendance/status?studentId=${profile?._id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      setAttendanceRecords(res.data);
 
+      // Calculate percentage
+      const total = res.data.length;
+      const present = res.data.filter((r) => r.status === "Present").length;
+      const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+      setAttendancePercentage(percentage);
+    };
+    fetchAttendance();
+  }, [profile?._id]);
   const studentData = {
     ...profile,
     phone: "+977-9876543210",
     address: "Kathmandu, Nepal",
     rollNo: "THA077BCT020",
-    semester: 4,
     faculty: "Computer Science",
-    batch: "2077",
+    batch: "2078",
     gpa: 3.8,
-    attendance: "85%"
   };
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">
@@ -36,6 +53,7 @@ const StudentProfile = () => {
       <div className="text-xl text-red-500">{error}</div>
     </div>;
   }
+  const studentSemester =  localStorage.getItem(`studentSemester_${profile?._id}`)
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pt-55 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
@@ -77,7 +95,7 @@ const StudentProfile = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Semester</span>
-                <span className="font-medium">{studentData.semester}th Semester</span>
+                <span className="font-medium">{studentSemester}th Semester</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Batch</span>
@@ -98,7 +116,7 @@ const StudentProfile = () => {
               <div className="text-center p-4 bg-blue-50 rounded-2xl">
                 <BookOpen size={24} className="text-blue-500 mx-auto mb-2" />
                 <p className="text-sm text-gray-600 mb-1">Attendance</p>
-                <p className="text-2xl font-bold text-gray-800">{studentData.attendance}</p>
+                <p className="text-2xl font-bold text-gray-800">{attendancePercentage}%</p>
               </div>
             </div>
           </div>

@@ -11,7 +11,7 @@ const useAuthStore = create((set, get) => ({
   login: async (token, role) => {
     localStorage.setItem('token', token)
     localStorage.setItem('userRole', role)
-    set({ isAuthenticated: true, userRole: role })
+    set({ isAuthenticated: true, userRole: role ,isLoading:true})
     
     // Fetch profile immediately after login
     try {
@@ -21,9 +21,10 @@ const useAuthStore = create((set, get) => ({
         }
       });
       console.log('Profile response after login:', response.data);
-      set({ profile: response.data });
+      set({ profile: response.data, isLoading:false});
     } catch (error) {
       console.error('Profile fetch error after login:', error);
+      set({ isLoading: false });
       // Don't set error here as login was successful, just profile fetch failed
     }
   },

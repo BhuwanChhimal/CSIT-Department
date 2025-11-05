@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import useAuthStore from '../store/authStore';
-import { Eye, EyeOff, Loader2, GraduationCap, Users, Shield } from "lucide-react";
-import {toast} from 'react-hot-toast';
+import useAuthStore from "../store/authStore";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  GraduationCap,
+  Users,
+  Shield,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,54 +22,121 @@ const AuthPage = () => {
     password: "",
     role: "student",
   });
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState(null);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation (only for registration)
+    if (!isLogin) {
+      if (!formData.name.trim()) {
+        newErrors.name = "Name is required";
+      } else if (formData.name.trim().length < 2) {
+        newErrors.name = "Name must be at least 2 characters";
+      }
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setFormData({ ...formData, [name]: value });
+
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   };
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setError(null);
+    setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true)
+
+    // Validate form
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
+    setIsLoading(true);
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
     try {
-      const res = await axios.post(`http://localhost:5002${endpoint}`, formData);
-      
-      // Use Zustand store action instead of localStorage
-      login(res.data.token, res.data.user.role);
+      const res = await axios.post(
+        `http://localhost:5002${endpoint}`,
+        formData
+      );
+
+      const { token, user } = res.data;
+
+      // Wait for login to complete (it's async and fetches profile)
+      await login(token, user.role);
+
+      // Wait for Zustand to finish fetching profile before navigating
+      const checkProfile = async () => {
+        const maxRetries = 10;
+        let tries = 0;
+        while (!useAuthStore.getState().profile && tries < maxRetries) {
+          await new Promise((res) => setTimeout(res, 200));
+          tries++;
+        }
+      };
+
+      await checkProfile();
 
       // Redirect based on role
       const role = res.data.user.role;
-      toast.success('Logged in successfully');
+      toast.success("Logged in successfully");
       if (role === "student") {
-        navigate("/student/dashboard");
+        navigate("/student/dashboard", { replace: true });
       } else if (role === "teacher") {
-        navigate("/teacher/dashboard");
+        navigate("/teacher/dashboard", { replace: true });
       } else if (role === "admin") {
-        navigate("/admin");
+        navigate("/admin", { replace: true });
       }
-      setIsLoading(false)
-      
+      setIsLoading(false);
     } catch (err) {
       toast.error("Invalid credentials");
-      setError(err.response?.data?.message || "Something went wrong");
-    }finally {
+      setErrors(err.response?.data?.message || "Something went wrong");
+    } finally {
       setIsLoading(false);
     }
   };
   const getRoleIcon = (role) => {
     switch (role) {
-      case "student": return <GraduationCap className="w-4 h-4" />;
-      case "teacher": return <Users className="w-4 h-4" />;
-      case "admin": return <Shield className="w-4 h-4" />;
-      default: return <GraduationCap className="w-4 h-4" />;
+      case "student":
+        return <GraduationCap className="w-4 h-4" />;
+      case "teacher":
+        return <Users className="w-4 h-4" />;
+      case "admin":
+        return <Shield className="w-4 h-4" />;
+      default:
+        return <GraduationCap className="w-4 h-4" />;
     }
   };
   return (
@@ -82,7 +156,9 @@ const AuthPage = () => {
               <GraduationCap className="w-10 h-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Amrit Science Campus</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Amrit Science Campus
+          </h1>
           <p className="text-gray-600 font-medium">Student & Faculty Portal</p>
         </div>
 
@@ -90,7 +166,7 @@ const AuthPage = () => {
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/50 relative">
           {/* Glass effect overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-3xl"></div>
-          
+
           <div className="relative z-10">
             {/* Form Toggle */}
             <div className="flex bg-gray-100/80 rounded-2xl p-1 mb-8">
@@ -98,9 +174,9 @@ const AuthPage = () => {
                 type="button"
                 onClick={() => isLogin || toggleForm()}
                 className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
-                  isLogin 
-                    ? 'bg-white text-gray-800 shadow-lg' 
-                    : 'text-gray-600 hover:text-gray-800'
+                  isLogin
+                    ? "bg-white text-gray-800 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
                 }`}
               >
                 Sign In
@@ -109,9 +185,9 @@ const AuthPage = () => {
                 type="button"
                 onClick={() => !isLogin || toggleForm()}
                 className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
-                  !isLogin 
-                    ? 'bg-white text-gray-800 shadow-lg' 
-                    : 'text-gray-600 hover:text-gray-800'
+                  !isLogin
+                    ? "bg-white text-gray-800 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
                 }`}
               >
                 Register
@@ -119,14 +195,14 @@ const AuthPage = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {typeof errors === 'string' && (
               <div className="bg-red-50 border border-red-200 p-4 mb-6 rounded-xl">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
+                <p className="text-red-700 text-sm font-medium">{errors}</p>
               </div>
             )}
 
             {/* Form */}
-            <form className="space-y-6" type="submit">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {!isLogin && (
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-gray-700">
@@ -139,8 +215,12 @@ const AuthPage = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-4 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white/70 backdrop-blur-sm placeholder-gray-400"
                     placeholder="Enter your full name"
-                    required
                   />
+                  {errors?.name && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -155,8 +235,12 @@ const AuthPage = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-4 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white/70 backdrop-blur-sm placeholder-gray-400"
                   placeholder="you@example.com"
-                  required
                 />
+                {errors?.email && (
+                  <p className="text-red-600 text-xs mt-1 font-medium">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -171,16 +255,24 @@ const AuthPage = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-4 pr-12 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white/70 backdrop-blur-sm placeholder-gray-400"
                     placeholder="••••••••"
-                    required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
+                {errors?.password && (
+                  <p className="text-red-600 text-xs mt-1 font-medium">
+                    {errors.password}
+                  </p>
+                )}
               </div>
 
               {!isLogin && (
@@ -206,8 +298,8 @@ const AuthPage = () => {
                 </div>
               )}
 
-              <div
-                onClick={handleSubmit}
+              <button
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 group cursor-pointer"
               >
                 {isLoading ? (
@@ -220,7 +312,7 @@ const AuthPage = () => {
                     </div>
                   </>
                 )}
-              </div>
+              </button>
             </form>
 
             {/* Footer */}

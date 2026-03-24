@@ -9,6 +9,7 @@ import subjectRoutes from "./routes/subjects.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import marksPredictorRoutes from "./routes/marksPredictorRoutes.js";
+import plagiarismRoutes from "./routes/plagiarismRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -33,5 +34,6 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/admin",adminRoutes)
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/marks-predictor", marksPredictorRoutes);
+app.use("/api/plagiarism", plagiarismRoutes);
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

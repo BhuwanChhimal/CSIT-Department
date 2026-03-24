@@ -74,6 +74,9 @@ export const submitAssignment = async (req, res) => {
     const { assignmentId } = req.params;
     const studentId = req.user._id;
     const fileUrl = req.file?.path;
+    const fileName = req.file?.originalname;
+    const fileType = req.file?.mimetype;
+    const fileSize = req.file?.size;
 
     console.log("Params:", assignmentId);
     console.log("File:", req.file.path);
@@ -87,6 +90,9 @@ export const submitAssignment = async (req, res) => {
     assignment.submissions.push({
       student: studentId,
       fileUrl,
+      fileName,
+      fileType,
+      fileSize,
       submittedAt: new Date()
     });
 

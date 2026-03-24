@@ -204,7 +204,9 @@ const TeacherDashboard = () => {
             )}
             {activeTab === "attendance" && <AttendanceTracking students={students} setStudents={setStudents} profile={profile}/>}
             {activeTab === "students" && <StudentManagement students={students} setStudents={setStudents}/>}
-            {activeTab === "ai-features" && <PlagiarismChecker />}
+            {activeTab === "ai-features" && (
+              <PlagiarismChecker assignments={assignments} />
+            )}
           </div>
         </div>
       </div>
